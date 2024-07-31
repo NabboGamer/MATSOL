@@ -2,7 +2,7 @@ function out = model
 %
 % component_library.m
 %
-% Model exported on Jul 29 2024, 12:00 by COMSOL 6.1.0.252.
+% Model exported on Jul 31 2024, 20:35 by COMSOL 6.1.0.252.
 
 import com.comsol.model.*
 import com.comsol.model.util.*
@@ -70,6 +70,7 @@ model.component('componentGeneral3D').label('componentGeneral3D');
 model.component('componentGeneral3D').curvedInterior(false);
 
 model.component('componentCube').mesh.create('mesh1');
+model.component('componentCube').mesh.create('mesh14');
 model.component('componentCube').mesh.create('mesh11');
 model.component('componentCube').mesh.create('mesh12');
 model.component('componentCube').mesh.create('mesh13');
@@ -287,8 +288,9 @@ model.component('componentSphere').coordSystem('sys81').tag('sys4');
 
 model.component('componentGeneral3D').common.create('amth_ht2', 'AmbientProperties');
 
-model.component('componentCube').mesh('mesh1').create('map1', 'Map');
-model.component('componentCube').mesh('mesh1').feature('map1').selection.geom('geom1');
+model.component('componentCube').mesh('mesh1').create('swe1', 'Sweep');
+model.component('componentCube').mesh('mesh14').create('map1', 'Map');
+model.component('componentCube').mesh('mesh14').feature('map1').selection.geom('geom1');
 model.component('componentCube').mesh('mesh11').create('map1', 'Map');
 model.component('componentCube').mesh('mesh11').feature('map1').selection.geom('geom1');
 model.component('componentCube').mesh('mesh12').create('map1', 'Map');
@@ -342,7 +344,12 @@ model.component('componentCube').mesh('mesh1').feature('size').set('hauto', 9);
 model.component('componentCube').mesh('mesh1').feature('size').set('custom', 'on');
 model.component('componentCube').mesh('mesh1').feature('size').set('hmax', 0.5);
 model.component('componentCube').mesh('mesh1').feature('size').set('hmin', 0.5);
+model.component('componentCube').mesh('mesh1').feature('swe1').selection('sourceface').set([1]);
+model.component('componentCube').mesh('mesh1').feature('swe1').selection('targetface').set([6]);
 model.component('componentCube').mesh('mesh1').run;
+model.component('componentCube').mesh('mesh14').label('meshEtremelyCoarseStructuredQuadrilateral');
+model.component('componentCube').mesh('mesh14').feature('size').set('hauto', 9);
+model.component('componentCube').mesh('mesh14').run;
 model.component('componentGeneral2D').mesh('mesh9').label('Mesh 1');
 model.component('componentGeneral3D').mesh('mesh10').label('Mesh 3');
 model.component('componentCube').mesh('mesh11').label('meshNormalStructuredQuadrilateral');
