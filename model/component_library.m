@@ -2,7 +2,7 @@ function out = model
 %
 % component_library.m
 %
-% Model exported on Jul 31 2024, 20:35 by COMSOL 6.1.0.252.
+% Model exported on Aug 1 2024, 19:24 by COMSOL 6.1.0.252.
 
 import com.comsol.model.*
 import com.comsol.model.util.*
@@ -359,5 +359,8 @@ model.component('componentCube').mesh('mesh12').feature('size').set('hauto', 1);
 model.component('componentCube').mesh('mesh12').run;
 model.component('componentCube').mesh('mesh13').label('meshNormalFreeTetrahedral');
 model.component('componentCube').mesh('mesh13').run;
+
+model.label('component_library.mph');
+model.component.label('Components');
 
 out = model;
