@@ -27,8 +27,8 @@ function out = incidence_matrices
     %% Estrazione della mesh di interesse, assegnazione a una variabile nel workspace base e plotting
     selectedComponentMeshList = selectedComponent.mesh();
     
-    % Per le Mesh dalla GUI di COMSOL il tag non è personalizzabile come per
-    % i Component, quindi label e tag non corrispondono.
+    % N.B.: Per le Mesh dalla GUI di COMSOL il tag non è personalizzabile come per
+    %       i Component, quindi label e tag non corrispondono.
     selectedComponentMeshTagList = string(selectedComponentMeshList.tags);
     labelTagArray = strings(size(selectedComponentMeshTagList, 1), 2);
     for i = 1:size(selectedComponentMeshTagList, 1)
@@ -64,9 +64,41 @@ function out = incidence_matrices
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
     elements = double(meshdata.elem{meshdataTypeHexPos}+1);
-    assignin('base', 'nodes', nodes);
-    assignin('base', 'elements', elements);
 
     %% Creazione della matrice di incidenza
+
+    % Trasposizione della matrice degli elementi
+    transposedMatrixNodes = nodes';
+    % Creazione delle etichette per righe e colonne della tabella
+    nodeLabels = strcat('n_', string(1:size(transposedMatrixNodes, 1)))';
+    coordinateLabels = ["x", "y", "z"];
+    % Creazione della tabella degli elementi
+    tableNodes = array2table(transposedMatrixNodes, 'RowNames', nodeLabels, 'VariableNames', coordinateLabels);
+    assignin('base', 'tableNodes', tableNodes);
+    
+    % Trasposizione della matrice degli elementi
+    transposedMatrixElements = elements';
+    % Creazione delle etichette per righe e colonne della tabella
+    elementLabels = strcat('e_', string(1:size(transposedMatrixElements, 1)))';
+    nodeLabels = strcat('n_', string(1:size(transposedMatrixElements, 2)));
+    % Creazione della tabella degli elementi
+    tableElements = array2table(transposedMatrixElements, 'RowNames', elementLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableElements', tableElements);
+
+    numNodes = size(tableNodes, 1);
+    numElements = size(tableElements, 1);
+    % Inizializzazione della matrice di incidenza
+    incidenceMatrix = zeros(numNodes, numElements);
+    % Popolamento della matrice di incidenza
+    for elemIndex = 1:numElements
+        elementNodes = table2array(tableElements(elemIndex, :));
+        incidenceMatrix(elementNodes, elemIndex) = 1;
+    end
+    % Creazione delle etichette per righe e colonne della tabella
+    nodeLabels = strcat('n_', string(1:size(incidenceMatrix, 1)));
+    elementLabels = strcat('e_', string(1:size(incidenceMatrix, 2)))';
+    % Creazione della tabella di incidenza
+    tableIncidence = array2table(incidenceMatrix, 'RowNames', nodeLabels, 'VariableNames', elementLabels);
+    assignin('base', 'tableIncidence', tableIncidence);
 
 out = model;
