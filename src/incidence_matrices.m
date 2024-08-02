@@ -57,6 +57,7 @@ function out = incidence_matrices
     assignin('base', 'meshdata', meshdata);
 
     meshdataTypeList = string(meshdata.types);
+    assignin('base', 'meshdataTypesList', meshdataTypeList);
     searchedString = 'hex';
     meshdataTypeHexPos = find(strcmp(meshdataTypeList, searchedString));
 
@@ -66,7 +67,6 @@ function out = incidence_matrices
     elements = double(meshdata.elem{meshdataTypeHexPos}+1);
 
     %% Creazione della matrice di incidenza
-
     % Trasposizione della matrice degli elementi
     transposedMatrixNodes = nodes';
     % Creazione delle etichette per righe e colonne della tabella
