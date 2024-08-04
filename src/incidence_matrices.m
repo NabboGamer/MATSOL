@@ -1,4 +1,6 @@
 function out = incidence_matrices
+    % Questa function si occupa di calcolare le matrici di incidenza della
+    % mesh specificata del modello specificato
     
     import com.comsol.model.*
     import com.comsol.model.util.*
@@ -35,7 +37,7 @@ function out = incidence_matrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'mesh9elemPerFaceStructuredQuadrilateral';
+    searchedString = 'mesh4elemPerFaceStructuredQuadrilateral';
     selectedMeshTagPos = find(strcmp(labelTagArray(:, 1), searchedString));
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -51,54 +53,45 @@ function out = incidence_matrices
     ylabel('Y', 'FontWeight', 'bold');
     zlabel('Z', 'FontWeight', 'bold');
 
-    %% Estrazione della matrice dei nodi e della matrice degli elementi dalla mesh, e assegnazione di quest'ultime a due diverse strutture dati nel workspace base
+    %% Creazione delle matrici di incidenza
     [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
     assignin('base', 'meshstats', meshstats);
     assignin('base', 'meshdata', meshdata);
 
     meshdataTypeList = string(meshdata.types);
     assignin('base', 'meshdataTypesList', meshdataTypeList);
-    searchedString = 'hex';
-    meshdataTypeHexPos = find(strcmp(meshdataTypeList, searchedString));
 
+    % MATRICE COORDINATE NODALI
     nodes = meshdata.vertex;
-    %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
-    %      bisogna aggiungere 1
-    elements = double(meshdata.elem{meshdataTypeHexPos}+1);
-
-    %% Creazione della matrice di incidenza
     % Trasposizione della matrice degli elementi
     transposedMatrixNodes = nodes';
     % Creazione delle etichette per righe e colonne della tabella
     nodeLabels = strcat('n_', string(1:size(transposedMatrixNodes, 1)))';
     coordinateLabels = ["x", "y", "z"];
     % Creazione della tabella degli elementi
-    tableNodes = array2table(transposedMatrixNodes, 'RowNames', nodeLabels, 'VariableNames', coordinateLabels);
-    assignin('base', 'tableNodes', tableNodes);
+    tableNodalCoordinates = array2table(transposedMatrixNodes, 'RowNames', nodeLabels, 'VariableNames', coordinateLabels);
+    assignin('base', 'tableNodalCoordinates', tableNodalCoordinates);
     
-    % Trasposizione della matrice degli elementi
-    transposedMatrixElements = elements';
-    % Creazione delle etichette per righe e colonne della tabella
+    % MATRICE NODI-ELEMENTI
+    searchedString = 'hex';
+    meshdataTypeHexPos = find(strcmp(meshdataTypeList, searchedString));
+    %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
+    %      bisogna aggiungere 1
+    elementsHex = double(meshdata.elem{meshdataTypeHexPos}+1);
+    transposedMatrixElements = elementsHex';
     elementLabels = strcat('e_', string(1:size(transposedMatrixElements, 1)))';
     nodeLabels = strcat('n_', string(1:size(transposedMatrixElements, 2)));
-    % Creazione della tabella degli elementi
-    tableElements = array2table(transposedMatrixElements, 'RowNames', elementLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableElements', tableElements);
+    tableNodesElements = array2table(transposedMatrixElements, 'RowNames', elementLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesElements', tableNodesElements);
 
-    numNodes = size(tableNodes, 1);
-    numElements = size(tableElements, 1);
-    % Inizializzazione della matrice di incidenza
-    incidenceMatrix = zeros(numNodes, numElements);
-    % Popolamento della matrice di incidenza
-    for elemIndex = 1:numElements
-        elementNodes = table2array(tableElements(elemIndex, :));
-        incidenceMatrix(elementNodes, elemIndex) = 1;
-    end
-    % Creazione delle etichette per righe e colonne della tabella
-    nodeLabels = strcat('n_', string(1:size(incidenceMatrix, 1)));
-    elementLabels = strcat('e_', string(1:size(incidenceMatrix, 2)))';
-    % Creazione della tabella di incidenza
-    tableIncidence = array2table(incidenceMatrix, 'RowNames', nodeLabels, 'VariableNames', elementLabels);
-    assignin('base', 'tableIncidence', tableIncidence);
+    % MATRICE NODI-FACCE
+    arrayNodesFaces = createArrayNodesFaces(tableNodalCoordinates, tableNodesElements);
+
+    faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
+    nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
+    tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesFaces', tableNodesFaces);
+    
+    
 
 out = model;
