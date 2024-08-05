@@ -92,6 +92,12 @@ function out = incidence_matrices
     tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
     assignin('base', 'tableNodesFaces', tableNodesFaces);
     
-    
+    % MATRICE NODI-LATI
+    arrayNodesSides = createArrayNodesSides(tableNodesFaces);
+
+    sideLabels = strcat('s_', string(1:size(arrayNodesSides, 1)))';
+    nodeLabels = strcat('n_', string(1:size(arrayNodesSides, 2)));
+    tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesSides', tableNodesSides);
 
 out = model;
