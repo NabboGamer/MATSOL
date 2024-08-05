@@ -13,12 +13,12 @@ function [arrayNodesFaces] = createArrayNodesFaces(tableNodalCoordinates, tableN
         arrayNodesFaces = [arrayNodesFaces; arrayNodesFacesForSingleElement];
     end
 
-    % Ordina gli elementi di ciascuna riga
-    arrayNodesFacesSorted = sort(arrayNodesFaces, 2);
-    % Trova le righe uniche ordinate
-    [~, ia, ~] = unique(arrayNodesFacesSorted, 'rows');
-    % Estrai le righe uniche dall'array originale
-    arrayNodesFaces = arrayNodesFaces(ia, :);
+    % % Ordina gli elementi di ciascuna riga
+    % arrayNodesFacesSorted = sort(arrayNodesFaces, 2);
+    % % Trova le righe uniche ordinate
+    % [~, ia, ~] = unique(arrayNodesFacesSorted, 'rows');
+    % % Estrai le righe uniche dall'array originale
+    % arrayNodesFaces = arrayNodesFaces(ia, :);
 
 end
 
