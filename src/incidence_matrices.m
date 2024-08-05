@@ -85,7 +85,7 @@ function out = incidence_matrices
     assignin('base', 'tableNodesElements', tableNodesElements);
 
     % MATRICE NODI-FACCE
-    arrayNodesFaces = createArrayNodesFaces2(tableNodesElements);
+    arrayNodesFaces = createArrayNodesFaces(tableNodesElements);
 
     faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
