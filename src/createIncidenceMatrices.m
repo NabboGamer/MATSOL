@@ -1,6 +1,5 @@
-function out = incidence_matrices
-    % Questa function si occupa di calcolare le matrici di incidenza della
-    % mesh specificata del modello specificato
+function out = createIncidenceMatrices
+    %CREATEINCIDENCEMATRICES si occupa di calcolare le matrici di incidenza per la mesh specificata del modello specificato
     
     import com.comsol.model.*
     import com.comsol.model.util.*
