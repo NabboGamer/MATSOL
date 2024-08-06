@@ -116,4 +116,12 @@ function out = incidence_matrices
     tableSidesElements = array2table(arraySidesElements, 'RowNames', elementLabels, 'VariableNames', sideLabels);
     assignin('base', 'tableSidesElements', tableSidesElements);
 
+    % MATRICE LATI-FACCE
+    arraySidesFaces = createArraySidesFaces(tableNodesFaces, tableNodesSides);
+
+    faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
+    sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
+    tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
+    assignin('base', 'tableSidesFaces', tableSidesFaces);
+
 out = model;
