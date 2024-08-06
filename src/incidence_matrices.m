@@ -37,7 +37,7 @@ function out = incidence_matrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'mesh4elemPerFaceStructuredQuadrilateral';
+    searchedString = 'meshNormalStructuredQuadrilateral';
     selectedMeshTagPos = find(strcmp(labelTagArray(:, 1), searchedString));
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -62,6 +62,8 @@ function out = incidence_matrices
     assignin('base', 'meshdataTypesList', meshdataTypeList);
 
     % MATRICE COORDINATE NODALI
+    fprintf("Inizio generazione matrice delle COORDINATE NODALI...\n");
+    tic;
     nodes = meshdata.vertex;
     % Trasposizione della matrice degli elementi
     transposedMatrixNodes = nodes';
@@ -71,8 +73,13 @@ function out = incidence_matrices
     % Creazione della tabella degli elementi
     tableNodalCoordinates = array2table(transposedMatrixNodes, 'RowNames', nodeLabels, 'VariableNames', coordinateLabels);
     assignin('base', 'tableNodalCoordinates', tableNodalCoordinates);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
     
     % MATRICE NODI-ELEMENTI
+    fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
+    tic;
     searchedString = 'hex';
     meshdataTypeHexPos = find(strcmp(meshdataTypeList, searchedString));
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
@@ -83,45 +90,68 @@ function out = incidence_matrices
     nodeLabels = strcat('n_', string(1:size(transposedMatrixElements, 2)));
     tableNodesElements = array2table(transposedMatrixElements, 'RowNames', elementLabels, 'VariableNames', nodeLabels);
     assignin('base', 'tableNodesElements', tableNodesElements);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
 
     % MATRICE NODI-FACCE
+    fprintf("Inizio generazione matrice di incidenza NODI-FACCE...\n");
+    tic;
     arrayNodesFaces = createArrayNodesFaces(tableNodesElements);
-
     faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
     tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
     assignin('base', 'tableNodesFaces', tableNodesFaces);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
     
     % MATRICE NODI-LATI
+    fprintf("Inizio generazione matrice di incidenza NODI-LATI...\n");
+    tic;
     arrayNodesSides = createArrayNodesSides(tableNodesFaces);
-
     sideLabels = strcat('s_', string(1:size(arrayNodesSides, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesSides, 2)));
     tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
     assignin('base', 'tableNodesSides', tableNodesSides);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
 
     % MATRICE FACCE-ELEMENTI
+    fprintf("Inizio generazione matrice di incidenza FACCE-ELEMENTI...\n");
+    tic;
     arrayFacesElements = createArrayFacesElements(tableNodesElements, tableNodesFaces);
-
     elementLabels = strcat('e_', string(1:size(arrayFacesElements, 1)))';
     faceLabels = strcat('f_', string(1:size(arrayFacesElements, 2)));
     tableFacesElements = array2table(arrayFacesElements, 'RowNames', elementLabels, 'VariableNames', faceLabels);
     assignin('base', 'tableFacesElements', tableFacesElements);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
 
     % MATRICE LATI-ELEMENTI
+    fprintf("Inizio generazione matrice di incidenza LATI-ELEMENTI...\n");
+    tic;
     arraySidesElements = createArraySidesElements(tableNodesElements, tableNodesSides);
-
     elementLabels = strcat('e_', string(1:size(arraySidesElements, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesElements, 2)));
     tableSidesElements = array2table(arraySidesElements, 'RowNames', elementLabels, 'VariableNames', sideLabels);
     assignin('base', 'tableSidesElements', tableSidesElements);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
 
     % MATRICE LATI-FACCE
+    fprintf("Inizio generazione matrice di incidenza LATI-FACCE...\n");
+    tic;
     arraySidesFaces = createArraySidesFaces(tableNodesFaces, tableNodesSides);
-
     faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
     tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
     assignin('base', 'tableSidesFaces', tableSidesFaces);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
 
 out = model;
