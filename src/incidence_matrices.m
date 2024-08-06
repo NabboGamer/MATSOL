@@ -100,4 +100,12 @@ function out = incidence_matrices
     tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
     assignin('base', 'tableNodesSides', tableNodesSides);
 
+    % MATRICE FACCE-ELEMENTI
+    arrayFacesElements = createArrayFacesElements(tableNodesElements, tableNodesFaces);
+
+    elementLabels = strcat('e_', string(1:size(arrayFacesElements, 1)))';
+    faceLabels = strcat('f_', string(1:size(arrayFacesElements, 2)));
+    tableFacesElements = array2table(arrayFacesElements, 'RowNames', elementLabels, 'VariableNames', faceLabels);
+    assignin('base', 'tableFacesElements', tableFacesElements);
+
 out = model;
