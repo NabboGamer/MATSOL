@@ -145,14 +145,19 @@ function out = createIncidenceMatrices
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
-    % MATRICE LATI-FACCE
-    fprintf("Inizio generazione matrice di incidenza LATI-FACCE...\n");
+    % MATRICE LATI-FACCE(totali e di frontiera)
+    fprintf("Inizio generazione matrice di incidenza LATI-FACCE(tot e fro)...\n");
     tic;
     arraySidesFaces = createArraySidesFaces(tableNodesFaces, tableNodesSides);
     faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
     tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
     assignin('base', 'tableSidesFaces', tableSidesFaces);
+    arraySidesBoundaryFaces = createArraySidesFaces(tableNodesBoundaryFaces, tableNodesSides);
+    boundaryFaceLabels = strcat('bf_', string(1:size(arraySidesBoundaryFaces, 1)))';
+    sideLabels = strcat('s_', string(1:size(arraySidesBoundaryFaces, 2)));
+    tableSidesBoundaryFaces = array2table(arraySidesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', sideLabels);
+    assignin('base', 'tableSidesBoundaryFaces', tableSidesBoundaryFaces);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');

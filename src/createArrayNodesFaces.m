@@ -1,5 +1,5 @@
 function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFaces(tableNodesElements)
-    %CREATEARRAYNODESFACES si occupa di creare la matrice NODI-FACCE(sia per tutte le facce, che per le facce di frontiera) per tutti gli elementi
+    %CREATEARRAYNODESFACES si occupa di creare la matrice NODI-FACCE(sia per tutte le facce, che per le sole facce di frontiera) per tutti gli elementi
     
     arrayNodesElements = table2array(tableNodesElements);
 
