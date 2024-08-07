@@ -1,5 +1,5 @@
-function [arrayNodesFaces] = createArrayNodesFaces(tableNodesElements)
-    %CREATEARRAYNODESFACES si occupa di creare la matrice NODI-FACCE per tutti gli elementi
+function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFaces(tableNodesElements)
+    %CREATEARRAYNODESFACES si occupa di creare la matrice NODI-FACCE(sia per tutte le facce, che per le facce di frontiera) per tutti gli elementi
     
     arrayNodesElements = table2array(tableNodesElements);
 
@@ -32,12 +32,28 @@ function [arrayNodesFaces] = createArrayNodesFaces(tableNodesElements)
         arrayNodesFaces(startIdx:endIdx, :) = facce;
     end
 
-    % Ordina gli elementi di ciascuna riga
+    % Ordina gli elementi di ciascuna riga. Ordinare ogni riga di arrayNodesFaces serve a garantire che le facce siano 
+    % considerate uguali indipendentemente dall'ordine dei nodi. In altre parole, se due facce contengono gli stessi nodi
+    % ma in ordine diverso, il sorting delle righe permette di riconoscerle come identiche.
     arrayNodesFacesSorted = sort(arrayNodesFaces, 2);
-    % Trova le righe uniche ordinate
-    [~, ia, ~] = unique(arrayNodesFacesSorted, 'rows');
-    % Estrai le righe uniche dall'array originale
-    arrayNodesFaces = arrayNodesFaces(ia, :);
+    % Trova le righe uniche ordinate e la loro occorrenza
+    %   uniqueFaces: contiene le righe uniche di arrayNodesFacesSorted, che rappresentano le facce uniche
+    %            ia: contiene gli indici delle prime occorrenze delle righe uniche in arrayNodesFacesSorted
+    %            ic: è un array della stessa dimensione di arrayNodesFacesSorted che indica a quale riga unica 
+    %                (tra quelle in uniqueFaces) corrisponde ciascuna riga originale.
+    [uniqueFaces, ia, ic] = unique(arrayNodesFacesSorted, 'rows');
+    % Trova la loro occorrenza 
+    %   unique(ic): restituisce i valori unici presenti in ic. Questi valori corrispondono alle righe uniche 
+    %               trovate in arrayNodesFacesSorted.
+    %        histc: conta il numero di occorrenze di ciascun valore in un array, ovvero conta quante volte ogni 
+    %               valore unico appare in ic. 
+    %   faceCounts: è un array che contiene il numero di volte che ogni faccia unica appare in arrayNodesFacesSorted
+    faceCounts = histc(ic, unique(ic));
+    
+    % Identifica le facce di frontiera(una faccia di frontiera è una faccia unica che appartiene a un solo elemento)
+    boundaryFaceIdx = faceCounts == 1;
+    
+    arrayNodesBoundaryFaces = uniqueFaces(boundaryFaceIdx, :);
+    arrayNodesFaces = uniqueFaces;
 
 end
-

@@ -36,7 +36,7 @@ function out = createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshNormalStructuredQuadrilateral';
+    searchedString = 'mesh4elemPerFaceStructuredQuadrilateral';
     selectedMeshTagPos = find(strcmp(labelTagArray(:, 1), searchedString));
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -93,14 +93,18 @@ function out = createIncidenceMatrices
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
-    % MATRICE NODI-FACCE
-    fprintf("Inizio generazione matrice di incidenza NODI-FACCE...\n");
+    % MATRICE NODI-FACCE(totali e di frontiera)
+    fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
     tic;
-    arrayNodesFaces = createArrayNodesFaces(tableNodesElements);
+    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFaces(tableNodesElements);
     faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
     tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
     assignin('base', 'tableNodesFaces', tableNodesFaces);
+    boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
+    nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
+    tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
