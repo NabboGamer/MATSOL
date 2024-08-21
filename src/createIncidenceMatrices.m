@@ -9,7 +9,7 @@ function out = createIncidenceMatrices
     
     %% Connessione a COMSOL, caricamento del modello e assegnazione a una variabile nel workspace base
     disp("Inizio il caricamento del modello...");
-    model = mphload('C:\Users\stolf\dev\Progetto Modelli Numerici per Campi e Circuiti\MATSOL\model\component_library.mph');
+    model = mphload('C:\Users\stolf\dev\Progetto Modelli Numerici per Campi e Circuiti\MATSOL\model\component_library_RF.mph');
     assignin('base', 'model', model);
     disp("Caricamento del modello terminato!");
     disp(newline)
@@ -36,7 +36,7 @@ function out = createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'mesh4elemPerFaceStructuredQuadrilateral';
+    searchedString = 'mesh4elemPerFace';
     selectedMeshTagPos = find(strcmp(labelTagArray(:, 1), searchedString));
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -158,6 +158,21 @@ function out = createIncidenceMatrices
     sideLabels = strcat('s_', string(1:size(arraySidesBoundaryFaces, 2)));
     tableSidesBoundaryFaces = array2table(arraySidesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', sideLabels);
     assignin('base', 'tableSidesBoundaryFaces', tableSidesBoundaryFaces);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
+
+    % MATRICE DOMINI-ELEMENTI
+    fprintf("Inizio generazione matrice di incidenza DOMINI-ELEMENTI...\n");
+    tic;
+    selectedComponentGeometry = selectedComponent.geom;
+    selectedComponentGeometryTag = string(selectedComponentGeometry.tags());
+    numberOfDomains = model.geom(selectedComponentGeometryTag).getNDomains();
+    arrayDomainsElements = createArrayDomainsElements(model, tableNodesElements, tableNodalCoordinates, selectedComponentGeometryTag, numberOfDomains);
+    faceLabels = strcat('e_', string(1:size(arrayDomainsElements, 1)))';
+    domainLabels = ["domain"];
+    tableDomainsElements = array2table(arrayDomainsElements, 'RowNames', faceLabels, 'VariableNames', domainLabels);
+    assignin('base', 'tableDomainsElements', tableDomainsElements);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
