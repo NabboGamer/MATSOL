@@ -177,4 +177,17 @@ function out = createIncidenceMatrices
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
+    % MATRICE FACCE_DOMINIO-FACCE_ELEMENTO
+    fprintf("Inizio generazione matrice di incidenza FACCE_DOMINIO-FACCE_ELEMENTO...\n");
+    tic;
+    numberOfBoundary = model.geom(selectedComponentGeometryTag).getNBoundaries();
+    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBoundaryFacesDomainBoundaryFacesElement(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary);
+    boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
+    BoundaryFacesDomainLabels = ["bf_domain"];
+    tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
+    assignin('base', 'tableBoundaryFacesDomainBoundaryFacesElement', tableBoundaryFacesDomainBoundaryFacesElement);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
+
 out = model;
