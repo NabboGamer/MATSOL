@@ -1,5 +1,6 @@
 function sorted_points = sortPolygonVertices(points)
-    % Ordina i vertici di un poligono in senso orario
+    %SORTPOLYGONVERTICES si occupa di ordinare i vertici di un poligono in senso antiorario
+
     % Calcola il baricentro del poligono
     centroid = mean(points);
     % Calcola l'angolo di ogni punto rispetto al baricentro

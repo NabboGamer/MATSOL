@@ -1,5 +1,5 @@
 function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBoundaryFacesDomainBoundaryFacesElement(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary)
-    %CREATEARRAYARRAYBOUNDARYFACESDOMAINBOUNDARYFACESELEMENT si occupa di creare la matrice FACCEDOMINIO-FACCEELEMENTO
+    %CREATEARRAYARRAYBOUNDARYFACESDOMAINBOUNDARYFACESELEMENT si occupa di creare la matrice FACCE_DOMINIO-FACCE_ELEMENTO
 
     arrayNodesBoundaryFaces = table2array(tableNodesBoundaryFaces);
     arrayNodalCoordinates = table2array(tableNodalCoordinates);

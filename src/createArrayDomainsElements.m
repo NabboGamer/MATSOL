@@ -1,19 +1,5 @@
 function [arrayDomainsElements] = createArrayDomainsElements(model, tableNodesElements, tableNodalCoordinates, selectedComponentGeometryTag, numberOfDomains)
     %CREATEARRAYDOMAINSELEMENTS si occupa di creare la matrice DOMINI-ELEMENTI
-    
-    % Funzione principale che controlla l'esaedro
-    function is_inside = checkHexahedronInDomain(vertices, domain)
-        % vertices è una matrice 8x3 dove ogni riga rappresenta un vertice 
-        % (x, y, z) dell'elmento in esame
-        is_inside = true;
-        [p, ~] = size(vertices); 
-        for k=1:p
-            if ~isInsideDomain(vertices(k, :), domain)
-                is_inside = false;
-                break;
-            end
-        end
-    end
 
     arrayNodesElements = table2array(tableNodesElements);
     arrayNodalCoordinates = table2array(tableNodalCoordinates);

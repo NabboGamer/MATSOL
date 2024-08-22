@@ -1,6 +1,7 @@
 function [plane_eq] = computePlaneEquationFromPoints(p1, p2, p3)
-    % Calcola l'equazione del piano dato tre punti non allineati
-    % p1, p2, p3: i tre punti del piano [x, y, z]
+    %COMPUTEPLANEEQUATIONFROMPOINTS si occupa di calcolare l'equazione del piano dati tre punti non allineati
+    % p1, p2, p3: sono i tre punti del piano [x, y, z]
+    % plane_eq: coefficienti dell'equazione del piano passante per i tre punti specificati
     
     % Calcola i vettori del piano
     v1 = p2 - p1;

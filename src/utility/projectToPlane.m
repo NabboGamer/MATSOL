@@ -1,6 +1,9 @@
 function [points_2D, T] = projectToPlane(points, normal, T)
-    % Proietta i punti su un piano definito dalla normale
-    % Se T è fornita, viene utilizzata per la trasformazione; altrimenti, viene calcolata
+    %PROJECTTOPLANE si occupa di proiettare i punti su un piano definito dalla normale
+    % points: matrice nx3, contente i punti da proiettare
+    % normal: vettore che definisce il piano di proiezione
+    % T: è una matrice di rotazione, se fornita, viene utilizzata per la trasformazione; altrimenti, viene calcolata
+    % points_2D: punti in 2D, proiettati sul piano specificato
     
     if nargin < 3
         % Controlla se la normale è parallela o antiparallela all'asse z

@@ -3,6 +3,7 @@ function out = createIncidenceMatrices
     
     import com.comsol.model.*
     import com.comsol.model.util.*
+    addpath('./utility');
     
     evalin('base', 'clear'), close all; clc;
     ModelUtil.clear();
