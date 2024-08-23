@@ -1,4 +1,4 @@
-function out = createIncidenceMatrices
+function createIncidenceMatrices
     %CREATEINCIDENCEMATRICES si occupa di calcolare le matrici di incidenza per la mesh specificata del modello specificato
     
     import com.comsol.model.*
@@ -20,7 +20,7 @@ function out = createIncidenceMatrices
 
     modelComponentTagList = string(modelComponentList.tags);
     searchedString = 'componentCube';
-    modelComponentTagPos = find(strcmp(modelComponentTagList, searchedString));
+    modelComponentTagPos = strcmp(modelComponentTagList, searchedString);
 
     selectedComponentTag = modelComponentTagList(modelComponentTagPos);
     selectedComponent = model.component(selectedComponentTag);
@@ -38,7 +38,7 @@ function out = createIncidenceMatrices
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
     searchedString = 'mesh4elemPerFace';
-    selectedMeshTagPos = find(strcmp(labelTagArray(:, 1), searchedString));
+    selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
     selectedMesh = model.mesh(selectedMeshTag);
@@ -55,8 +55,8 @@ function out = createIncidenceMatrices
 
     %% Creazione delle matrici di incidenza
     [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
-    assignin('base', 'meshstats', meshstats);
-    assignin('base', 'meshdata', meshdata);
+    % assignin('base', 'meshstats', meshstats);
+    % assignin('base', 'meshdata', meshdata);
 
     meshdataTypeList = string(meshdata.types);
     assignin('base', 'meshdataTypesList', meshdataTypeList);
@@ -81,7 +81,7 @@ function out = createIncidenceMatrices
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
     searchedString = 'hex';
-    meshdataTypeHexPos = find(strcmp(meshdataTypeList, searchedString));
+    meshdataTypeHexPos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
     elementsHex = double(meshdata.elem{meshdataTypeHexPos}+1);
@@ -171,7 +171,7 @@ function out = createIncidenceMatrices
     numberOfDomains = model.geom(selectedComponentGeometryTag).getNDomains();
     arrayDomainsElements = createArrayDomainsElements(model, tableNodesElements, tableNodalCoordinates, selectedComponentGeometryTag, numberOfDomains);
     faceLabels = strcat('e_', string(1:size(arrayDomainsElements, 1)))';
-    domainLabels = ["domain"];
+    domainLabels = "domain";
     tableDomainsElements = array2table(arrayDomainsElements, 'RowNames', faceLabels, 'VariableNames', domainLabels);
     assignin('base', 'tableDomainsElements', tableDomainsElements);
     tempo_esecuzione = toc;
@@ -184,11 +184,12 @@ function out = createIncidenceMatrices
     numberOfBoundary = model.geom(selectedComponentGeometryTag).getNBoundaries();
     arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBoundaryFacesDomainBoundaryFacesElement(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary);
     boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
-    BoundaryFacesDomainLabels = ["bf_domain"];
+    BoundaryFacesDomainLabels = "bf_domain";
     tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
     assignin('base', 'tableBoundaryFacesDomainBoundaryFacesElement', tableBoundaryFacesDomainBoundaryFacesElement);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
-out = model;
+
+end

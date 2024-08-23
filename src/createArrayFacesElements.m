@@ -4,8 +4,8 @@ function arrayFacesElements = createArrayFacesElements(tableNodesElements, table
     arrayNodesElements = table2array(tableNodesElements);
     arrayNodesFaces = table2array(tableNodesFaces);
 
-    [m, n] = size(arrayNodesElements);
-    [o, p] = size(arrayNodesFaces);
+    [m, ~] = size(arrayNodesElements);
+    [o, ~] = size(arrayNodesFaces);
     numFacesPerElements = 6;
     arrayFacesElements = zeros(m, numFacesPerElements);
 

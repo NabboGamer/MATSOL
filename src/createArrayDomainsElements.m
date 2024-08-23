@@ -16,9 +16,12 @@ function [arrayDomainsElements] = createArrayDomainsElements(model, tableNodesEl
 
             [minColumnValue, ~] = min(domainCoordinates, [], 1);
             [maxColumnValue, ~] = max(domainCoordinates, [], 1);
-            domain.x_min = minColumnValue(1); domain.x_max = maxColumnValue(1);
-            domain.y_min = minColumnValue(2); domain.y_max = maxColumnValue(2);
-            domain.z_min = minColumnValue(3); domain.z_max = maxColumnValue(3);
+            domain.x_min = minColumnValue(1); 
+            domain.y_min = minColumnValue(2); 
+            domain.z_min = minColumnValue(3);
+            domain.x_max = maxColumnValue(1);
+            domain.y_max = maxColumnValue(2);
+            domain.z_max = maxColumnValue(3);
 
             isInside = checkHexahedronInDomain(elementCoordinates, domain);
 

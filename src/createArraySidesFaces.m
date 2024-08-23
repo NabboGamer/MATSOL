@@ -4,8 +4,8 @@ function arraySidesFaces = createArraySidesFaces(tableNodesFaces, tableNodesSide
     arrayNodesFaces = table2array(tableNodesFaces);
     arrayNodesSides = table2array(tableNodesSides);
 
-    [m, n] = size(arrayNodesFaces);
-    [o, p] = size(arrayNodesSides);
+    [m, ~] = size(arrayNodesFaces);
+    [o, ~] = size(arrayNodesSides);
     numSidesPerFace = 4;
     arraySidesFaces = zeros(m, numSidesPerFace);
 

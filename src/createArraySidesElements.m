@@ -4,8 +4,8 @@ function arraySidesElements = createArraySidesElements(tableNodesElements, table
     arrayNodesElements = table2array(tableNodesElements);
     arrayNodesSides = table2array(tableNodesSides);
 
-    [m, n] = size(arrayNodesElements);
-    [o, p] = size(arrayNodesSides);
+    [m, ~] = size(arrayNodesElements);
+    [o, ~] = size(arrayNodesSides);
     numSidesPerElement = 12;
     arraySidesElements = zeros(m, numSidesPerElement);
 
