@@ -178,6 +178,15 @@ function createIncidenceMatrices
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
+    figure('Name', 'Plot della Geometry', 'NumberTitle', 'off');
+    mphgeom(model, selectedComponentGeometryTag);
+    title_string = [string(selectedComponentGeometryTag), 'di', string(selectedComponentTag)];
+    title_string = string(strjoin(title_string));
+    title(title_string);
+    xlabel('X', 'FontWeight', 'bold');
+    ylabel('Y', 'FontWeight', 'bold');
+    zlabel('Z', 'FontWeight', 'bold');
+
     % MATRICE FACCE_DOMINIO-FACCE_ELEMENTO
     fprintf("Inizio generazione matrice di incidenza FACCE_DOMINIO-FACCE_ELEMENTO...\n");
     tic;
