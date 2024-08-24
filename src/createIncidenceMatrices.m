@@ -4,6 +4,8 @@ function createIncidenceMatrices
     import com.comsol.model.*
     import com.comsol.model.util.*
     addpath('./utility');
+    addpath('./mesh_element_type/hexahedrons');
+    addpath('./mesh_element_type/prisms');
     
     evalin('base', 'clear'), close all; clc;
     ModelUtil.clear();
@@ -94,21 +96,21 @@ function createIncidenceMatrices
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
-    % % MATRICE NODI-FACCE(totali e di frontiera)
-    % fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
-    % tic;
-    % [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFaces(tableNodesElements);
-    % faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
-    % nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
-    % tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
-    % assignin('base', 'tableNodesFaces', tableNodesFaces);
-    % boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
-    % nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
-    % tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
-    % assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
-    % tempo_esecuzione = toc;
-    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    % fprintf('\n');
+    % MATRICE NODI-FACCE(totali e di frontiera)
+    fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
+    tic;
+    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPrisms(tableNodesElements);
+    faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
+    nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
+    tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesFaces', tableNodesFaces);
+    boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
+    nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
+    tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
     % 
     % % MATRICE NODI-LATI
     % fprintf("Inizio generazione matrice di incidenza NODI-LATI...\n");
