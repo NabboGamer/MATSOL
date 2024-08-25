@@ -1,4 +1,4 @@
-function [arrayDomainsElements] = createArrayDomainsElements(model, tableNodesElements, tableNodalCoordinates, selectedComponentGeometryTag, numberOfDomains)
+function [arrayDomainsElements] = createArrayDomainsElements(model, tableNodesElements, tableNodalCoordinates, selectedComponentGeometryTag, numberOfDomains, domainType)
     %CREATEARRAYDOMAINSELEMENTS si occupa di creare la matrice DOMINI-ELEMENTI
 
     arrayNodesElements = table2array(tableNodesElements);
@@ -23,7 +23,7 @@ function [arrayDomainsElements] = createArrayDomainsElements(model, tableNodesEl
             domain.y_max = maxColumnValue(2);
             domain.z_max = maxColumnValue(3);
 
-            isInside = checkHexahedronInDomain(elementCoordinates, domain);
+            isInside = checkElementInDomain(elementCoordinates, domain, domainType);
 
             if isInside
                 arrayDomainsElements(i,1) = j;
