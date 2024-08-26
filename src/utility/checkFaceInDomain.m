@@ -1,4 +1,4 @@
-function in_domain = checkFacesInDomain(domain_face, mesh_face)
+function in_domain = checkFaceInDomain(domain_face, mesh_face)
     %CHECKFACESINDOMAIN si occupa di verificare se una faccia di un elemento di una mesh è compresa in una faccia del dominio
     % domain_face: matrice nx3, dove ogni riga è un vertice del dominio [x, y, z]
     % mesh_face: matrice nx3, dove ogni riga è un vertice dell'elemento della mesh [x, y, z]

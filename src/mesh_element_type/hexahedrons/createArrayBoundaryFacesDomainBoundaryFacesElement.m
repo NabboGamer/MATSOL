@@ -14,7 +14,7 @@ function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBoundaryFaces
         for j=1:numberOfBoundary
             boundaryCoordinates = mphgetcoords(model, selectedComponentGeometryTag, 'boundary', j)';
 
-            isInside = checkFacesInDomain(boundaryCoordinates, faceCoordinates);
+            isInside = checkFaceInDomain(boundaryCoordinates, faceCoordinates);
 
             if isInside
                 arrayBoundaryFacesDomainBoundaryFacesElement(i,1) = j;
