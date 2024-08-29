@@ -1,4 +1,4 @@
-function arrayFacesElements = createArrayFacesElementsPyramids(tableNodesElements, tableNodesFaces)
+function arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesFaces)
     %CREATEARRAYFACESELEMENTS si occupa di creare la matrice FACCE-ELEMENTI
     
     arrayNodesElements = table2array(tableNodesElements);

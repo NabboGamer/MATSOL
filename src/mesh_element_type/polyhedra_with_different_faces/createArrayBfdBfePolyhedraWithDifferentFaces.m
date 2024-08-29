@@ -1,4 +1,4 @@
-function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBoundaryFacesDomainBoundaryFacesElementPrism(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary)
+function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithDifferentFaces(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary)
     %CREATEARRAYARRAYBOUNDARYFACESDOMAINBOUNDARYFACESELEMENT si occupa di creare la matrice FACCE_DOMINIO-FACCE_ELEMENTO
 
     arrayNodesBoundaryFaces = table2array(tableNodesBoundaryFaces);

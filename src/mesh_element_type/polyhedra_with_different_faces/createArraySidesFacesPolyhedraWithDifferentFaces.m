@@ -1,4 +1,4 @@
-function arraySidesFaces = createArraySidesFacesPrisms(tableNodesFaces, tableNodesSides)
+function arraySidesFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tableNodesFaces, tableNodesSides)
     %CREATEARRAYSIDESFACES si occupa di creare la matrice LATI-FACCE
     
     arrayNodesFaces = table2array(tableNodesFaces);
@@ -17,7 +17,7 @@ function arraySidesFaces = createArraySidesFacesPrisms(tableNodesFaces, tableNod
 
         isTriangularFace = any(faceNodes == -1, 2);
         if isTriangularFace
-            faceNodes = faceNodes(2:end);
+            faceNodes = faceNodes(1:end-1);
         end
 
         for j = 1 : o

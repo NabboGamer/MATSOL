@@ -1,4 +1,4 @@
-function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPrisms(tableNodesElements)
+function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithDifferentFaces(tableNodesElements, elementType)
     %CREATEARRAYNODESFACES si occupa di creare la matrice NODI-FACCE(sia per tutte le facce, che per le sole facce di frontiera) per tutti gli elementi
     
     arrayNodesElements = table2array(tableNodesElements);
@@ -16,15 +16,26 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPrism
     for e = 1:numElements
         % Nodi dell'elemento corrente
         nodes = arrayNodesElements(e, :);
-        
-        % Definizione delle 6 facce per l'elemento secondo la notazione corretta
-        faces = [
-            nodes([1, 2, 3]),-1;    % Faccia inferiore    (N1, N2, N3)
-            nodes([4, 5, 6]),-1;    % Faccia superiore    (N4, N5, N6)
-            nodes([1, 3, 4, 6]);    % Faccia laterale 1   (N1, N3, N4, N6)
-            nodes([1, 2, 4, 5]);    % Faccia laterale 2   (N1, N2, N4, N5)
-            nodes([2, 3, 5, 6]);    % Faccia laterale 3   (N2, N3, N5, N6)
-        ];
+
+        if strcmp(elementType, 'prism')
+            % Definizione delle 5 facce per l'elemento secondo la notazione corretta
+            faces = [
+                nodes([1, 2, 3]),-1;    % Faccia inferiore    (N1, N2, N3)
+                nodes([4, 5, 6]),-1;    % Faccia superiore    (N4, N5, N6)
+                nodes([1, 3, 4, 6]);    % Faccia laterale 1   (N1, N3, N4, N6)
+                nodes([1, 2, 4, 5]);    % Faccia laterale 2   (N1, N2, N4, N5)
+                nodes([2, 3, 5, 6]);    % Faccia laterale 3   (N2, N3, N5, N6)
+            ];   
+        elseif strcmp(elementType, 'pyr')
+            % Definizione delle 5 facce per l'elemento secondo la notazione corretta
+            faces = [
+                nodes([1, 2, 3, 4]);    % Faccia inferiore    (N1, N2, N3, N4)
+                nodes([1, 2, 5]),-1;    % Faccia laterale 1   (N1, N2, N5)
+                nodes([1, 3, 5]),-1;    % Faccia laterale 2   (N1, N3, N5)
+                nodes([2, 4, 5]),-1;    % Faccia laterale 3   (N2, N4, N5)
+                nodes([3, 4, 5]),-1;    % Faccia laterale 4   (N3, N4, N5)
+            ];
+        end
         
         % Inserimento delle facce nella matrice NodiFacce
         startIdx = (e - 1) * numFacesPerElement + 1;
@@ -41,7 +52,8 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPrism
     %            ia: contiene gli indici delle prime occorrenze delle righe uniche in arrayNodesFacesSorted
     %            ic: è un array della stessa dimensione di arrayNodesFacesSorted che indica a quale riga unica 
     %                (tra quelle in uniqueFaces) corrisponde ciascuna riga originale.
-    [uniqueFaces, ia, ic] = unique(arrayNodesFacesSorted, 'rows');
+    [~, ia, ic] = unique(arrayNodesFacesSorted, 'rows', 'stable');
+    uniqueFaces = arrayNodesFaces(ia, :);
     % Trova la loro occorrenza 
     %   unique(ic): restituisce i valori unici presenti in ic. Questi valori corrispondono alle righe uniche 
     %               trovate in arrayNodesFacesSorted.

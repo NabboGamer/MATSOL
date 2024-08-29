@@ -1,15 +1,19 @@
-function [arrayNodesSides] = createArrayNodesSidesPrisms(tableNodesFaces)
+function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(tableNodesFaces)
     %CREATEARRAYNODESSIDES si occupa di creare la matrice NODI-LATI per tutte le facce
 
     arrayNodesFaces = table2array(tableNodesFaces);
 
     % Inizializzazione della matrice NODI-LATI
     numFaces = size(arrayNodesFaces, 1);
+
     numTriangularFaces = sum(any(arrayNodesFaces == -1, 2));
     numRectangularFaces = numFaces - numTriangularFaces;
+
     numSidesPerTriangularFace = 3;     % Ogni faccia triangolare ha 3 lati
     numSidesPerRectangularFace = 4;    % Ogni faccia rettangolare ha 4 lati
+
     numNodesPerSide = 2;               % Ogni lato è definito da 2 nodi
+
     numSidesTriangle = numTriangularFaces*numSidesPerTriangularFace;
     numSidesRectangle = numRectangularFaces*numSidesPerRectangularFace;
 
@@ -25,7 +29,7 @@ function [arrayNodesSides] = createArrayNodesSidesPrisms(tableNodesFaces)
     for i = 1:numTriangularFaces
         % Prendere i nodi della faccia corrente
         face = arrayNodesTriangularFaces(i, :);
-        face = face(2:end);
+        face = face(1:end-1);
 
         % Generare i lati per la faccia corrente (lati per una faccia triangolare)
         faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
@@ -59,15 +63,21 @@ function [arrayNodesSides] = createArrayNodesSidesPrisms(tableNodesFaces)
         arrayNodesSidesRectangle(startIdx:endIdx, :) = faceSides;
        
     end
-
-    arrayNodesSides = [arrayNodesSidesTriangle;arrayNodesSidesRectangle];
     
-    % Ordina gli elementi di ciascuna riga
+ 
+    % arrayNodesSidesTriangleSorted = sort(arrayNodesSidesTriangle, 2);
+    % [~, iaTriangle, ~] = unique(arrayNodesSidesTriangleSorted, 'rows', 'stable');
+    % uniqueNodesSidesTriangle = arrayNodesSidesTriangle(iaTriangle, :);
+    % 
+    % arrayNodesSidesRectangleSorted = sort(arrayNodesSidesRectangle, 2);
+    % [~, iaRectangle, ~] = unique(arrayNodesSidesRectangleSorted, 'rows', 'stable');
+    % uniqueNodesSidesRectangle = arrayNodesSidesRectangle(iaRectangle, :);
+    
+    arrayNodesSides = [arrayNodesSidesTriangle; arrayNodesSidesRectangle];
+
     arrayNodesSidesSorted = sort(arrayNodesSides, 2);
-    % Trova le righe uniche ordinate
-    [~, ia, ~] = unique(arrayNodesSidesSorted, 'rows');
-    % Estrai le righe uniche dall'array originale
-    arrayNodesSides = arrayNodesSides(ia, :);
+    [~, iaCombined, ~] = unique(arrayNodesSidesSorted, 'rows', 'stable');
+    arrayNodesSides = arrayNodesSides(iaCombined, :);
 
 end
 
