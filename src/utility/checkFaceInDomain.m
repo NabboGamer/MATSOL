@@ -39,6 +39,7 @@ function in_domain = checkFaceInDomain(domain_face, mesh_face)
     oldWarnState = warning('query', 'all');
     % Disabilita la stampa dei warning di MATLAB
     warning('off', 'all');
+    lastwarn('');
 
     domain_poly = polyshape(domain_2D(:, 1), domain_2D(:, 2));
 

@@ -1,4 +1,4 @@
-function arraySidesElements = createArraySidesElements(tableNodesElements, tableNodesSides)
+function arraySidesElements = createArraySidesElementsPolyhedraWithAllFacesEqual(tableNodesElements, tableNodesSides, elementType)
     %CREATEARRAYSIDESELEMENTS si occupa di creare la matrice LATI-ELEMENTI
     
     arrayNodesElements = table2array(tableNodesElements);
@@ -6,7 +6,13 @@ function arraySidesElements = createArraySidesElements(tableNodesElements, table
 
     [m, ~] = size(arrayNodesElements);
     [o, ~] = size(arrayNodesSides);
-    numSidesPerElement = 12;
+
+    if strcmp(elementType, 'hex')
+        numSidesPerElement = 12;
+    elseif strcmp(elementType, 'tet')
+        numSidesPerElement = 6;
+    end
+
     arraySidesElements = zeros(m, numSidesPerElement);
 
     for i = 1 : m

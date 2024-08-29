@@ -4,9 +4,8 @@ function createIncidenceMatrices
     import com.comsol.model.*
     import com.comsol.model.util.*
     addpath('./utility');
-    addpath('./mesh_element_type/hexahedrons');
+    addpath('./mesh_element_type/polyhedra_with_all_faces_equal');
     addpath('./mesh_element_type/prisms');
-    addpath('./mesh_element_type/tetrahedrons');
     addpath('./mesh_element_type/pyramids');
     
     evalin('base', 'clear'), close all; clc;
@@ -23,7 +22,7 @@ function createIncidenceMatrices
     modelComponentList = model.component();
 
     modelComponentTagList = string(modelComponentList.tags);
-    searchedString = 'componentCube2';
+    searchedString = 'componentCube3';
     modelComponentTagPos = strcmp(modelComponentTagList, searchedString);
 
     selectedComponentTag = modelComponentTagList(modelComponentTagPos);
@@ -41,7 +40,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshPyr';
+    searchedString = 'mesh4elemPerFace';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -84,7 +83,7 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'pyr';
+    searchedString = 'hex';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
@@ -101,7 +100,7 @@ function createIncidenceMatrices
     % MATRICE NODI-FACCE(totali e di frontiera)
     fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
     tic;
-    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPyramids(tableNodesElements);
+    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithAllFacesEqual(tableNodesElements, searchedString);
     faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
     tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
@@ -117,7 +116,7 @@ function createIncidenceMatrices
     % MATRICE NODI-LATI
     fprintf("Inizio generazione matrice di incidenza NODI-LATI...\n");
     tic;
-    arrayNodesSides = createArrayNodesSidesPyramids(tableNodesFaces);
+    arrayNodesSides = createArrayNodesSidesPolyhedraWithAllFacesEqual(tableNodesFaces, searchedString);
     sideLabels = strcat('s_', string(1:size(arrayNodesSides, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesSides, 2)));
     tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
@@ -129,7 +128,7 @@ function createIncidenceMatrices
     % MATRICE FACCE-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza FACCE-ELEMENTI...\n");
     tic;
-    arrayFacesElements = createArrayFacesElementsPyramids(tableNodesElements, tableNodesFaces);
+    arrayFacesElements = createArrayFacesElementsPolyhedraWithAllFacesEqual(tableNodesElements, tableNodesFaces, searchedString);
     elementLabels = strcat('e_', string(1:size(arrayFacesElements, 1)))';
     faceLabels = strcat('f_', string(1:size(arrayFacesElements, 2)));
     tableFacesElements = array2table(arrayFacesElements, 'RowNames', elementLabels, 'VariableNames', faceLabels);
@@ -141,7 +140,7 @@ function createIncidenceMatrices
     % MATRICE LATI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza LATI-ELEMENTI...\n");
     tic;
-    arraySidesElements = createArraySidesElementsPyramids(tableNodesElements, tableNodesSides);
+    arraySidesElements = createArraySidesElementsPolyhedraWithAllFacesEqual(tableNodesElements, tableNodesSides, searchedString);
     elementLabels = strcat('e_', string(1:size(arraySidesElements, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesElements, 2)));
     tableSidesElements = array2table(arraySidesElements, 'RowNames', elementLabels, 'VariableNames', sideLabels);
@@ -153,7 +152,7 @@ function createIncidenceMatrices
     % MATRICE LATI-FACCE(totali e di frontiera)
     fprintf("Inizio generazione matrice di incidenza LATI-FACCE(tot e fro)...\n");
     tic;
-    arraySidesFaces = createArraySidesFacesPyramids(tableNodesFaces, tableNodesSides);
+    arraySidesFaces = createArraySidesFacesPolyhedraWithAllFacesEqual(tableNodesFaces, tableNodesSides, searchedString);
     faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
     tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
@@ -190,11 +189,11 @@ function createIncidenceMatrices
     ylabel('Y', 'FontWeight', 'bold');
     zlabel('Z', 'FontWeight', 'bold');
 
-    % MATRICE FACCE_DOMINIO-FACCE_ELEMENTO
-    fprintf("Inizio generazione matrice di incidenza FACCE_DOMINIO-FACCE_ELEMENTO...\n");
+    % MATRICE FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO
+    fprintf("Inizio generazione matrice di incidenza FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO...\n");
     tic;
     numberOfBoundary = model.geom(selectedComponentGeometryTag).getNBoundaries();
-    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBoundaryFacesDomainBoundaryFacesElementPrism(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary);
+    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithAllFacesEqual(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary);
     boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
     BoundaryFacesDomainLabels = "bf_domain";
     tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
