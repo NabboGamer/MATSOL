@@ -22,14 +22,14 @@ function createIncidenceMatrices
     modelComponentList = model.component();
 
     modelComponentTagList = string(modelComponentList.tags);
-    searchedString = 'componentCube3';
+    searchedString = 'componentCube';
     modelComponentTagPos = strcmp(modelComponentTagList, searchedString);
 
     selectedComponentTag = modelComponentTagList(modelComponentTagPos);
     selectedComponent = model.component(selectedComponentTag);
     % assignin('base', 'selectedComponent', selectedComponent);
 
-    %% Estrazione della mesh di interesse, assegnazione a una variabile nel workspace base e plotting
+    %% Estrazione della mesh e della geometria di interesse, assegnazione a una variabile nel workspace base e plotting
     selectedComponentMeshList = selectedComponent.mesh();
     
     % N.B.: Per le Mesh dalla GUI di COMSOL il tag non è personalizzabile come per
@@ -40,7 +40,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'mesh4elemPerFace';
+    searchedString = 'meshTet';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -50,6 +50,18 @@ function createIncidenceMatrices
     figure('Name', 'Plot della Mesh', 'NumberTitle', 'off');
     mphmesh(model, selectedMeshTag);
     title_string = [string(selectedMeshTag), 'di', string(selectedComponentTag)];
+    title_string = string(strjoin(title_string));
+    title(title_string);
+    xlabel('X', 'FontWeight', 'bold');
+    ylabel('Y', 'FontWeight', 'bold');
+    zlabel('Z', 'FontWeight', 'bold');
+
+    selectedComponentGeometry = selectedComponent.geom;
+    selectedComponentGeometryTag = string(selectedComponentGeometry.tags());
+
+    figure('Name', 'Plot della Geometry', 'NumberTitle', 'off');
+    mphgeom(model, selectedComponentGeometryTag);
+    title_string = [string(selectedComponentGeometryTag), 'di', string(selectedComponentTag)];
     title_string = string(strjoin(title_string));
     title(title_string);
     xlabel('X', 'FontWeight', 'bold');
@@ -83,7 +95,7 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'hex';
+    searchedString = 'tet';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
@@ -169,8 +181,6 @@ function createIncidenceMatrices
     % MATRICE DOMINI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza DOMINI-ELEMENTI...\n");
     tic;
-    selectedComponentGeometry = selectedComponent.geom;
-    selectedComponentGeometryTag = string(selectedComponentGeometry.tags());
     arrayDomainsElements = meshdata.elementity{meshdataTypePos};
     faceLabels = strcat('e_', string(1:size(arrayDomainsElements, 1)))';
     domainLabels = "domain";
@@ -179,15 +189,6 @@ function createIncidenceMatrices
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
-
-    figure('Name', 'Plot della Geometry', 'NumberTitle', 'off');
-    mphgeom(model, selectedComponentGeometryTag);
-    title_string = [string(selectedComponentGeometryTag), 'di', string(selectedComponentTag)];
-    title_string = string(strjoin(title_string));
-    title(title_string);
-    xlabel('X', 'FontWeight', 'bold');
-    ylabel('Y', 'FontWeight', 'bold');
-    zlabel('Z', 'FontWeight', 'bold');
 
     % MATRICE FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO
     fprintf("Inizio generazione matrice di incidenza FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO...\n");
