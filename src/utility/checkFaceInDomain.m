@@ -1,7 +1,7 @@
-function in_domain = checkFacesInDomain(domain_face, mesh_face)
+function in_domain = checkFaceInDomain(domain_face, mesh_face)
     %CHECKFACESINDOMAIN si occupa di verificare se una faccia di un elemento di una mesh è compresa in una faccia del dominio
-    % domain_face: matrice 4x3, dove ogni riga è un vertice del quadrilatero [x, y, z]
-    % mesh_face: matrice 4x3, dove ogni riga è un vertice del quadrilatero [x, y, z]
+    % domain_face: matrice nx3, dove ogni riga è un vertice del dominio [x, y, z]
+    % mesh_face: matrice nx3, dove ogni riga è un vertice dell'elemento della mesh [x, y, z]
     % in_domain: true se la faccia della mesh è all'interno della faccia del dominio
 
     % Usa i primi tre punti per calcolare l'equazione del piano per la faccia del dominio
@@ -24,7 +24,7 @@ function in_domain = checkFacesInDomain(domain_face, mesh_face)
     domain_2D = unique(domain_2D, 'rows', 'stable');
     
     % Controlla se il poligono ha almeno 3 vertici
-    if size(domain_2D, 1) < 3
+    if size(domain_2D, 1) < 3 || any(isnan(domain_2D(:)))
         in_domain = false;
         return; % Esce dalla funzione poiché il dominio non è valido
     end
@@ -33,8 +33,27 @@ function in_domain = checkFacesInDomain(domain_face, mesh_face)
     domain_2D = sortPolygonVertices(domain_2D);
     domain_2D = round(domain_2D, 10);
 
+
     % Crea un poligono per il dominio in 2D
+    % Salva lo stato corrente dei warning
+    oldWarnState = warning('query', 'all');
+    % Disabilita la stampa dei warning di MATLAB
+    warning('off', 'all');
+    lastwarn('');
+
     domain_poly = polyshape(domain_2D(:, 1), domain_2D(:, 2));
+
+    % Recupera l'ultimo warning
+    [msg, ~] = lastwarn;
+    % Se un warning è stato generato, stampa un messaggio personalizzato
+    if ~isempty(msg)
+        fprintf('*** WARNING RILEVATO: %s\n', msg);
+        % Pulire la lista dei warning dopo averli gestiti
+        lastwarn('');  % Resetta il messaggio e l'ID dell'ultimo warning
+    end
+    % Ripristina la stampa dei warning di MATLAB
+    warning(oldWarnState);
+
     
     % Proietta la faccia della mesh sullo stesso piano
     [mesh_2D, ~] = projectToPlane(mesh_face, plane_eq_mesh(1:3));
@@ -42,7 +61,7 @@ function in_domain = checkFacesInDomain(domain_face, mesh_face)
     mesh_2D = unique(mesh_2D, 'rows', 'stable');
     
     % Controlla se il poligono ha almeno 3 vertici
-    if size(mesh_2D, 1) < 3
+    if size(mesh_2D, 1) < 3 || any(isnan(mesh_2D(:)))
         in_domain = false;
         return; % Esce dalla funzione poiché la faccia della mesh non è valida
     end
