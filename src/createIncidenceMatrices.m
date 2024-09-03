@@ -22,7 +22,7 @@ function createIncidenceMatrices
     modelComponentList = model.component();
 
     modelComponentTagList = string(modelComponentList.tags);
-    searchedString = 'componentCube';
+    searchedString = 'componentCylinder';
     modelComponentTagPos = strcmp(modelComponentTagList, searchedString);
 
     selectedComponentTag = modelComponentTagList(modelComponentTagPos);
@@ -31,7 +31,7 @@ function createIncidenceMatrices
 
     %% Estrazione della mesh e della geometria di interesse, assegnazione a una variabile nel workspace base e plotting
     selectedComponentMeshList = selectedComponent.mesh();
-    
+
     % N.B.: Per le Mesh dalla GUI di COMSOL il tag non è personalizzabile come per
     %       i Component, quindi label e tag non corrispondono.
     selectedComponentMeshTagList = string(selectedComponentMeshList.tags);
@@ -40,7 +40,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshPrism';
+    searchedString = 'meshSecondOrderPrism2';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -68,6 +68,26 @@ function createIncidenceMatrices
     ylabel('Y', 'FontWeight', 'bold');
     zlabel('Z', 'FontWeight', 'bold');
 
+    %% Estrazione del numero di ordine degli elementi
+    modelShapeFunctionsTags = string(model.shape.tags());
+    if isempty(modelShapeFunctionsTags)
+        disp('*** Errore Shape Functions inesistenti: prima assegna una fisica al componente');
+        return;
+    end
+    modelShapeFunctionsFirstTag = modelShapeFunctionsTags(1);
+    shapeFeatureList = model.shape(modelShapeFunctionsFirstTag).feature();
+    firstFeatureString = string(shapeFeatureList(1).toString());
+    firstFeatureTag = extractAfter(firstFeatureString, 'Child nodes: ');
+    firstFeature = model.shape(modelShapeFunctionsFirstTag).feature(firstFeatureTag);
+
+    elementOrder = firstFeature.getInt('order');
+ 
+    modelSolutionTags = string(model.sol.tags());
+    if elementOrder > 1 && isempty(modelSolutionTags)
+        disp('*** Errore Solutions inesistenti: prima calcola una soluzione del modello(anche banale e con dati mock)');
+        return;
+    end
+    
     %% Creazione delle matrici di incidenza
     [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
     assignin('base', 'meshstats', meshstats);
@@ -95,7 +115,7 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'prism';
+    searchedString = 'tet';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
@@ -109,100 +129,100 @@ function createIncidenceMatrices
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
-    % MATRICE NODI-FACCE(totali e di frontiera)
-    fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
-    tic;
-    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithDifferentFaces(tableNodesElements, searchedString);
-    faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
-    nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
-    tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableNodesFaces', tableNodesFaces);
-    boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
-    nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
-    tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
-
-    % MATRICE NODI-LATI
-    fprintf("Inizio generazione matrice di incidenza NODI-LATI...\n");
-    tic;
-    arrayNodesSides = createArrayNodesSidesPolyhedraWithDifferentFaces(tableNodesFaces);
-    sideLabels = strcat('s_', string(1:size(arrayNodesSides, 1)))';
-    nodeLabels = strcat('n_', string(1:size(arrayNodesSides, 2)));
-    tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableNodesSides', tableNodesSides);
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
-
-    % MATRICE FACCE-ELEMENTI
-    fprintf("Inizio generazione matrice di incidenza FACCE-ELEMENTI...\n");
-    tic;
-    arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesFaces);
-    elementLabels = strcat('e_', string(1:size(arrayFacesElements, 1)))';
-    faceLabels = strcat('f_', string(1:size(arrayFacesElements, 2)));
-    tableFacesElements = array2table(arrayFacesElements, 'RowNames', elementLabels, 'VariableNames', faceLabels);
-    assignin('base', 'tableFacesElements', tableFacesElements);
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
-
-    % MATRICE LATI-ELEMENTI
-    fprintf("Inizio generazione matrice di incidenza LATI-ELEMENTI...\n");
-    tic;
-    arraySidesElements = createArraySidesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesSides, searchedString);
-    elementLabels = strcat('e_', string(1:size(arraySidesElements, 1)))';
-    sideLabels = strcat('s_', string(1:size(arraySidesElements, 2)));
-    tableSidesElements = array2table(arraySidesElements, 'RowNames', elementLabels, 'VariableNames', sideLabels);
-    assignin('base', 'tableSidesElements', tableSidesElements);
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
-
-    % MATRICE LATI-FACCE(totali e di frontiera)
-    fprintf("Inizio generazione matrice di incidenza LATI-FACCE(tot e fro)...\n");
-    tic;
-    arraySidesFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tableNodesFaces, tableNodesSides);
-    faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
-    sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
-    tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
-    assignin('base', 'tableSidesFaces', tableSidesFaces);
-
-    arraySidesBoundaryFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tableNodesBoundaryFaces, tableNodesSides);
-    boundaryFaceLabels = strcat('bf_', string(1:size(arraySidesBoundaryFaces, 1)))';
-    sideLabels = strcat('s_', string(1:size(arraySidesBoundaryFaces, 2)));
-    tableSidesBoundaryFaces = array2table(arraySidesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', sideLabels);
-    assignin('base', 'tableSidesBoundaryFaces', tableSidesBoundaryFaces);
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
-
-    % MATRICE DOMINI-ELEMENTI
-    fprintf("Inizio generazione matrice di incidenza DOMINI-ELEMENTI...\n");
-    tic;
-    arrayDomainsElements = meshdata.elementity{meshdataTypePos};
-    faceLabels = strcat('e_', string(1:size(arrayDomainsElements, 1)))';
-    domainLabels = "domain";
-    tableDomainsElements = array2table(arrayDomainsElements, 'RowNames', faceLabels, 'VariableNames', domainLabels);
-    assignin('base', 'tableDomainsElements', tableDomainsElements);
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
-
-    % MATRICE FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO
-    fprintf("Inizio generazione matrice di incidenza FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO...\n");
-    tic;
-    numberOfBoundary = model.geom(selectedComponentGeometryTag).getNBoundaries();
-    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithDifferentFaces(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary);
-    boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
-    BoundaryFacesDomainLabels = "bf_domain";
-    tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
-    assignin('base', 'tableBoundaryFacesDomainBoundaryFacesElement', tableBoundaryFacesDomainBoundaryFacesElement);
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
+    % % MATRICE NODI-FACCE(totali e di frontiera)
+    % fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
+    % tic;
+    % [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithDifferentFaces(tableNodesElements, searchedString);
+    % faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
+    % nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
+    % tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
+    % assignin('base', 'tableNodesFaces', tableNodesFaces);
+    % boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
+    % nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
+    % tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
+    % assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
+    % tempo_esecuzione = toc;
+    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    % fprintf('\n');
+    % 
+    % % MATRICE NODI-LATI
+    % fprintf("Inizio generazione matrice di incidenza NODI-LATI...\n");
+    % tic;
+    % arrayNodesSides = createArrayNodesSidesPolyhedraWithDifferentFaces(tableNodesFaces);
+    % sideLabels = strcat('s_', string(1:size(arrayNodesSides, 1)))';
+    % nodeLabels = strcat('n_', string(1:size(arrayNodesSides, 2)));
+    % tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
+    % assignin('base', 'tableNodesSides', tableNodesSides);
+    % tempo_esecuzione = toc;
+    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    % fprintf('\n');
+    % 
+    % % MATRICE FACCE-ELEMENTI
+    % fprintf("Inizio generazione matrice di incidenza FACCE-ELEMENTI...\n");
+    % tic;
+    % arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesFaces);
+    % elementLabels = strcat('e_', string(1:size(arrayFacesElements, 1)))';
+    % faceLabels = strcat('f_', string(1:size(arrayFacesElements, 2)));
+    % tableFacesElements = array2table(arrayFacesElements, 'RowNames', elementLabels, 'VariableNames', faceLabels);
+    % assignin('base', 'tableFacesElements', tableFacesElements);
+    % tempo_esecuzione = toc;
+    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    % fprintf('\n');
+    % 
+    % % MATRICE LATI-ELEMENTI
+    % fprintf("Inizio generazione matrice di incidenza LATI-ELEMENTI...\n");
+    % tic;
+    % arraySidesElements = createArraySidesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesSides, searchedString);
+    % elementLabels = strcat('e_', string(1:size(arraySidesElements, 1)))';
+    % sideLabels = strcat('s_', string(1:size(arraySidesElements, 2)));
+    % tableSidesElements = array2table(arraySidesElements, 'RowNames', elementLabels, 'VariableNames', sideLabels);
+    % assignin('base', 'tableSidesElements', tableSidesElements);
+    % tempo_esecuzione = toc;
+    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    % fprintf('\n');
+    % 
+    % % MATRICE LATI-FACCE(totali e di frontiera)
+    % fprintf("Inizio generazione matrice di incidenza LATI-FACCE(tot e fro)...\n");
+    % tic;
+    % arraySidesFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tableNodesFaces, tableNodesSides);
+    % faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
+    % sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
+    % tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
+    % assignin('base', 'tableSidesFaces', tableSidesFaces);
+    % 
+    % arraySidesBoundaryFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tableNodesBoundaryFaces, tableNodesSides);
+    % boundaryFaceLabels = strcat('bf_', string(1:size(arraySidesBoundaryFaces, 1)))';
+    % sideLabels = strcat('s_', string(1:size(arraySidesBoundaryFaces, 2)));
+    % tableSidesBoundaryFaces = array2table(arraySidesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', sideLabels);
+    % assignin('base', 'tableSidesBoundaryFaces', tableSidesBoundaryFaces);
+    % tempo_esecuzione = toc;
+    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    % fprintf('\n');
+    % 
+    % % MATRICE DOMINI-ELEMENTI
+    % fprintf("Inizio generazione matrice di incidenza DOMINI-ELEMENTI...\n");
+    % tic;
+    % arrayDomainsElements = meshdata.elementity{meshdataTypePos};
+    % faceLabels = strcat('e_', string(1:size(arrayDomainsElements, 1)))';
+    % domainLabels = "domain";
+    % tableDomainsElements = array2table(arrayDomainsElements, 'RowNames', faceLabels, 'VariableNames', domainLabels);
+    % assignin('base', 'tableDomainsElements', tableDomainsElements);
+    % tempo_esecuzione = toc;
+    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    % fprintf('\n');
+    % 
+    % % MATRICE FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO
+    % fprintf("Inizio generazione matrice di incidenza FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO...\n");
+    % tic;
+    % numberOfBoundary = model.geom(selectedComponentGeometryTag).getNBoundaries();
+    % arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithDifferentFaces(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary);
+    % boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
+    % BoundaryFacesDomainLabels = "bf_domain";
+    % tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
+    % assignin('base', 'tableBoundaryFacesDomainBoundaryFacesElement', tableBoundaryFacesDomainBoundaryFacesElement);
+    % tempo_esecuzione = toc;
+    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    % fprintf('\n');
 
 
 end
