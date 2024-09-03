@@ -88,18 +88,44 @@ function createIncidenceMatrices
         return;
     end
     
-    %% Creazione delle matrici di incidenza
-    [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
-    assignin('base', 'meshstats', meshstats);
-    assignin('base', 'meshdata', meshdata);
 
-    meshdataTypeList = string(meshdata.types);
-    assignin('base', 'meshdataTypesList', meshdataTypeList);
+    if elementOrder > 1
+        % La posizione del tag della geometria di interesse serve perchè
+        % coincide con la posizione nella quale trovare le informazioni estese
+        % della mesh nel caso in cui il modello abbia più componenti e quindi
+        % più geometrie.
+        geometryTagList = string(model.geom.tags());
+        geometryTagPos = find(strcmp(geometryTagList, selectedComponentGeometryTag));
+    end
+
+    %% Creazione delle matrici di incidenza
+    
+    if elementOrder > 1
+        % Le informazioni estese sulla mesh servono nel caso in cui si
+        % abbiano elementi di ordine superiore al primo, poichè è l'unico
+        % modo con cui è possibile ottenere anche i nodi intermedi che
+        % compongono la mesh.
+        extendedMeshInfo = mphxmeshinfo(model);
+        assignin('base', 'extendedMeshInfo', extendedMeshInfo);
+        meshdataTypeList = string(extendedMeshInfo.meshtypes);
+        assignin('base', 'meshdataTypesList', meshdataTypeList);
+    else
+        [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
+        assignin('base', 'meshstats', meshstats);
+        assignin('base', 'meshdata', meshdata);
+        meshdataTypeList = string(meshdata.types);
+        assignin('base', 'meshdataTypesList', meshdataTypeList);
+    end
+
 
     % MATRICE COORDINATE NODALI
     fprintf("Inizio generazione matrice delle COORDINATE NODALI...\n");
     tic;
-    nodes = meshdata.vertex;
+    if elementOrder > 1
+        nodes = extendedMeshInfo.nodes(geometryTagPos).coords;
+    else
+        nodes = meshdata.vertex;
+    end
     % Trasposizione della matrice degli elementi
     transposedMatrixNodes = nodes';
     % Creazione delle etichette per righe e colonne della tabella
@@ -117,9 +143,14 @@ function createIncidenceMatrices
     tic;
     searchedString = 'tet';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
-    %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
-    %      bisogna aggiungere 1
-    elements = double(meshdata.elem{meshdataTypePos}+1);
+
+    if elementOrder > 1
+        elements= extendedMeshInfo.elements(geometryTagPos).tet.nodes;
+    else
+        %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
+        %      bisogna aggiungere 1
+        elements = double(meshdata.elem{meshdataTypePos}+1);
+    end
     transposedMatrixElements = elements';
     elementLabels = strcat('e_', string(1:size(transposedMatrixElements, 1)))';
     nodeLabels = strcat('n_', string(1:size(transposedMatrixElements, 2)));
