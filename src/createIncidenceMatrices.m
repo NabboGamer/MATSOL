@@ -143,12 +143,11 @@ function createIncidenceMatrices
     tic;
     searchedString = 'tet';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
-
+    %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
+    %      bisogna aggiungere 1
     if elementOrder > 1
-        elements= extendedMeshInfo.elements(geometryTagPos).tet.nodes;
+        elements = double(extendedMeshInfo.elements(geometryTagPos).tet.nodes+1);
     else
-        %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
-        %      bisogna aggiungere 1
         elements = double(meshdata.elem{meshdataTypePos}+1);
     end
     transposedMatrixElements = elements';
