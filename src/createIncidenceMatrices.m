@@ -20,7 +20,7 @@ function createIncidenceMatrices
     model = mphload('C:\Users\stolf\dev\Progetto Modelli Numerici per Campi e Circuiti\MATSOL\model\component_library_RF.mph');
     [msg, ~] = lastwarn;
     if ~isempty(msg)
-        fprintf('***WARNING: %s\n', msg);
+        cprintf('SystemCommands','***WARNING: %s\n', msg);
         lastwarn('');
     end
     warning(oldWarnState);
@@ -41,7 +41,7 @@ function createIncidenceMatrices
     searchedString = 'componentCylinder';
     modelComponentTagPos = strcmp(labelNameArray(:, 1), searchedString);
     if ~any(modelComponentTagPos)
-        disp('***ERROR: non esiste nessun componente con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il NAME del componente');
+        cprintf('Errors','***ERROR: non esiste nessun componente con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il NAME del componente \n');
         return;
     end
 
@@ -61,7 +61,7 @@ function createIncidenceMatrices
     searchedString = 'meshSecondOrderElementTet';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
     if ~any(selectedMeshTagPos)
-        disp('***ERROR: non esiste nessuna mesh con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il TAG della mesh');
+        cprintf('Errors', '***ERROR: non esiste nessuna mesh con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il TAG della mesh \n');
         return;
     end
 
@@ -93,7 +93,7 @@ function createIncidenceMatrices
     %% Estrazione del numero di ordine degli elementi
     modelShapeFunctionsTags = string(model.shape.tags());
     if isempty(modelShapeFunctionsTags)
-        disp('***ERROR: funzioni di forma inesistenti, assegna una fisica al componente');
+        cprintf('Errors', '***ERROR: funzioni di forma inesistenti, assegna una fisica al componente \n');
         return;
     end
     modelShapeFunctionsFirstTag = modelShapeFunctionsTags(1);
@@ -106,7 +106,7 @@ function createIncidenceMatrices
 
     modelSolutionTags = string(model.sol.tags());
     if elementOrder > 1 && isempty(modelSolutionTags)
-        disp('***ERROR: soluzioni inesistenti, calcola una soluzione del modello(anche con dati mock)');
+        cprintf('Errors', '***ERROR: soluzioni inesistenti, calcola una soluzione del modello(anche con dati mock) \n');
         return;
     end
 
@@ -126,13 +126,13 @@ function createIncidenceMatrices
         % abbiano elementi di ordine superiore al primo, poichè è l'unico
         % modo con cui è possibile ottenere anche i nodi intermedi che
         % compongono la mesh.
-        disp('***DEBUG: Mesh con elementi del SECONDO ordine');
+        cprintf('Comments', '***DEBUG: Mesh con elementi del SECONDO ordine \n');
         extendedMeshInfo = mphxmeshinfo(model);
         assignin('base', 'extendedMeshInfo', extendedMeshInfo);
         meshdataTypeList = string(extendedMeshInfo.meshtypes);
         assignin('base', 'meshdataTypesList', meshdataTypeList);
     else
-        disp('***DEBUG: Mesh con elementi del PRIMO ordine');
+        cprintf('Comments', '***DEBUG: Mesh con elementi del PRIMO ordine \n');
         [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
         assignin('base', 'meshstats', meshstats);
         assignin('base', 'meshdata', meshdata);
