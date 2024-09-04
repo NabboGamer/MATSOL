@@ -1,4 +1,4 @@
-function arraySidesFaces = createArraySidesFacesPolyhedraWithAllFacesEqual(tableNodesFaces, tableNodesSides, elementType)
+function arraySidesFaces = createArraySidesFacesPolyhedraWithAllFacesEqual(tableNodesFaces, tableNodesSides, elementType, elementsOrder)
     %CREATEARRAYSIDESFACES si occupa di creare la matrice LATI-FACCE
     
     arrayNodesFaces = table2array(tableNodesFaces);
@@ -7,10 +7,18 @@ function arraySidesFaces = createArraySidesFacesPolyhedraWithAllFacesEqual(table
     [m, ~] = size(arrayNodesFaces);
     [o, ~] = size(arrayNodesSides);
 
-    if strcmp(elementType, 'hex')
-        numSidesPerFace = 4;
-    elseif strcmp(elementType, 'tet')
-        numSidesPerFace = 3;
+    if elementsOrder == 2
+        if strcmp(elementType, 'hex')
+            numSidesPerFace = 8;
+        elseif strcmp(elementType, 'tet')
+            numSidesPerFace = 6;
+        end
+    else
+        if strcmp(elementType, 'hex')
+            numSidesPerFace = 4;
+        elseif strcmp(elementType, 'tet')
+            numSidesPerFace = 3;
+        end
     end
 
     arraySidesFaces = zeros(m, numSidesPerFace);

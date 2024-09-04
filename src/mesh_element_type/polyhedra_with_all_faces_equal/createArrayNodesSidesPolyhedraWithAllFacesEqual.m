@@ -1,14 +1,22 @@
-function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithAllFacesEqual(tableNodesFaces, elementType)
+function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithAllFacesEqual(tableNodesFaces, elementType, elementsOrder)
     %CREATEARRAYNODESSIDES si occupa di creare la matrice NODI-LATI per tutte le facce
 
     arrayNodesFaces = table2array(tableNodesFaces);
 
     % Inizializzazione della matrice NODI-LATI
     numFaces = size(arrayNodesFaces, 1);
-    if strcmp(elementType, 'hex')
-        numSidesPerFace = 4;  % Ogni faccia dell'esaedro ha 4 lati      
-    elseif strcmp(elementType, 'tet')
-        numSidesPerFace = 3;  % Ogni faccia del tetraedro ha 3 lati
+    if elementsOrder == 2
+        if strcmp(elementType, 'hex')
+            numSidesPerFace = 8;  % Ogni faccia dell'esaedro ha 8 lati      
+        elseif strcmp(elementType, 'tet')
+            numSidesPerFace = 6;  % Ogni faccia del tetraedro ha 6 lati
+        end
+    else
+        if strcmp(elementType, 'hex')
+            numSidesPerFace = 4;  % Ogni faccia dell'esaedro ha 4 lati      
+        elseif strcmp(elementType, 'tet')
+            numSidesPerFace = 3;  % Ogni faccia del tetraedro ha 3 lati
+        end
     end
     numNodesPerSide = 2;    % Ogni lato è definita da 2 nodi  
     
@@ -20,17 +28,36 @@ function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithAllFacesEqual(tab
         % Prendere i nodi della faccia corrente
         face = arrayNodesFaces(i, :);
         
-        if strcmp(elementType, 'hex')
-            % Generare i lati per la faccia corrente (lati per una faccia quadrilatera)
-            faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
-                         face(2), face(4);  % Lato destro     (N2, N4)
-                         face(4), face(3);  % Lato superiore  (N4, N3)
-                         face(3), face(1)]; % Lato sinistro   (N3, N1)
-        elseif strcmp(elementType, 'tet')
-            % Generare i lati per la faccia corrente (lati per una faccia triangolare)
-            faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
-                         face(2), face(3);  % Lato destro     (N2, N3)
-                         face(3), face(1)]; % Lato sinistro   (N3, N1)
+        if elementsOrder == 2
+            if strcmp(elementType, 'hex')
+                % Generare i lati per la faccia corrente (lati per una faccia quadrilatera)
+                faceSides = [face(1), face(2);  % Lato inferiore
+                             face(2), face(3);  % Lato destro
+                             face(3), face(6);  % Lato superiore
+                             face(6), face(9);  % Lato sinistro
+                             face(9), face(8);  % Lato inferiore
+                             face(8), face(7);  % Lato destro
+                             face(7), face(4);  % Lato superiore
+                             face(4), face(1)]; % Lato sinistro
+            elseif strcmp(elementType, 'tet')
+                % Generare i lati per la faccia corrente (lati per una faccia triangolare)
+                faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
+                             face(2), face(3);  % Lato destro     (N2, N3)
+                             face(3), face(1)]; % Lato sinistro   (N3, N1)
+            end
+        else
+            if strcmp(elementType, 'hex')
+                % Generare i lati per la faccia corrente (lati per una faccia quadrilatera)
+                faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
+                             face(2), face(4);  % Lato destro     (N2, N4)
+                             face(4), face(3);  % Lato superiore  (N4, N3)
+                             face(3), face(1)]; % Lato sinistro   (N3, N1)
+            elseif strcmp(elementType, 'tet')
+                % Generare i lati per la faccia corrente (lati per una faccia triangolare)
+                faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
+                             face(2), face(3);  % Lato destro     (N2, N3)
+                             face(3), face(1)]; % Lato sinistro   (N3, N1)
+            end
         end
         
         % Inserimento delle facce nella matrice NodiLati
