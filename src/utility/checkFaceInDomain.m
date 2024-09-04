@@ -47,7 +47,7 @@ function in_domain = checkFaceInDomain(domain_face, mesh_face)
     [msg, ~] = lastwarn;
     % Se un warning è stato generato, stampa un messaggio personalizzato
     if ~isempty(msg)
-        fprintf('*** WARNING RILEVATO: %s\n', msg);
+        fprintf('***WARNING: %s\n', msg);
         % Pulire la lista dei warning dopo averli gestiti
         lastwarn('');  % Resetta il messaggio e l'ID dell'ultimo warning
     end

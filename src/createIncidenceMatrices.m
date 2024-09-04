@@ -40,7 +40,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshSecondOrderPrism2';
+    searchedString = 'meshSecondOrderPrism3';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
 
     selectedMeshTag = labelTagArray(selectedMeshTagPos, 2);
@@ -71,7 +71,7 @@ function createIncidenceMatrices
     %% Estrazione del numero di ordine degli elementi
     modelShapeFunctionsTags = string(model.shape.tags());
     if isempty(modelShapeFunctionsTags)
-        disp('*** Errore Shape Functions inesistenti: prima assegna una fisica al componente');
+        disp('***ERROR: funzioni di forma inesistenti, assegna una fisica al componente');
         return;
     end
     modelShapeFunctionsFirstTag = modelShapeFunctionsTags(1);
@@ -84,12 +84,11 @@ function createIncidenceMatrices
  
     modelSolutionTags = string(model.sol.tags());
     if elementOrder > 1 && isempty(modelSolutionTags)
-        disp('*** Errore Solutions inesistenti: prima calcola una soluzione del modello(anche banale e con dati mock)');
+        disp('***ERROR: soluzioni inesistenti, calcola una soluzione del modello(anche banale e con dati mock)');
         return;
     end
     
-
-    if elementOrder > 1
+    if elementOrder == 2
         % La posizione del tag della geometria di interesse serve perchè
         % coincide con la posizione nella quale trovare le informazioni estese
         % della mesh nel caso in cui il modello abbia più componenti e quindi
@@ -100,16 +99,18 @@ function createIncidenceMatrices
 
     %% Creazione delle matrici di incidenza
     
-    if elementOrder > 1
+    if elementOrder == 2
         % Le informazioni estese sulla mesh servono nel caso in cui si
         % abbiano elementi di ordine superiore al primo, poichè è l'unico
         % modo con cui è possibile ottenere anche i nodi intermedi che
         % compongono la mesh.
+        disp('***DEBUG: Mesh con elementi del SECONDO ordine');
         extendedMeshInfo = mphxmeshinfo(model);
         assignin('base', 'extendedMeshInfo', extendedMeshInfo);
         meshdataTypeList = string(extendedMeshInfo.meshtypes);
         assignin('base', 'meshdataTypesList', meshdataTypeList);
     else
+        disp('***DEBUG: Mesh con elementi del PRIMO ordine');
         [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
         assignin('base', 'meshstats', meshstats);
         assignin('base', 'meshdata', meshdata);
@@ -121,8 +122,8 @@ function createIncidenceMatrices
     % MATRICE COORDINATE NODALI
     fprintf("Inizio generazione matrice delle COORDINATE NODALI...\n");
     tic;
-    if elementOrder > 1
-        nodes = extendedMeshInfo.nodes(geometryTagPos).coords;
+    if elementOrder == 2
+        nodes = double(extendedMeshInfo.nodes(geometryTagPos).coords);
     else
         nodes = meshdata.vertex;
     end
@@ -141,12 +142,12 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'tet';
+    searchedString = 'prism';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
-    if elementOrder > 1
-        elements = double(extendedMeshInfo.elements(geometryTagPos).tet.nodes+1);
+    if elementOrder == 2
+        elements = double(extendedMeshInfo.elements(geometryTagPos).prism.nodes+1);
     else
         elements = double(meshdata.elem{meshdataTypePos}+1);
     end
@@ -159,22 +160,22 @@ function createIncidenceMatrices
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
-    % % MATRICE NODI-FACCE(totali e di frontiera)
-    % fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
-    % tic;
-    % [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithDifferentFaces(tableNodesElements, searchedString);
-    % faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
-    % nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
-    % tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
-    % assignin('base', 'tableNodesFaces', tableNodesFaces);
-    % boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
-    % nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
-    % tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
-    % assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
-    % tempo_esecuzione = toc;
-    % fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    % fprintf('\n');
-    % 
+    % MATRICE NODI-FACCE(totali e di frontiera)
+    fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
+    tic;
+    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithDifferentFaces(tableNodesElements, searchedString);
+    faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
+    nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
+    tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesFaces', tableNodesFaces);
+    boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
+    nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
+    tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
+    assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
+    tempo_esecuzione = toc;
+    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+    fprintf('\n');
+
     % % MATRICE NODI-LATI
     % fprintf("Inizio generazione matrice di incidenza NODI-LATI...\n");
     % tic;
