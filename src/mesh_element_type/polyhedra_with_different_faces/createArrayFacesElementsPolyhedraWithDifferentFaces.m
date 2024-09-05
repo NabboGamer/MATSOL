@@ -1,4 +1,4 @@
-function arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesFaces)
+function arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesFaces, elementsOrder)
     %CREATEARRAYFACESELEMENTS si occupa di creare la matrice FACCE-ELEMENTI
     
     arrayNodesElements = table2array(tableNodesElements);
@@ -16,8 +16,14 @@ function arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFace
             facesNodes = arrayNodesFaces(j, :);
 
             isTriangularFace = any(facesNodes == -1, 2);
-            if isTriangularFace
-                facesNodes = facesNodes(1:end-1);
+            if elementsOrder == 2
+                if isTriangularFace
+                    facesNodes = facesNodes(1:end-2);
+                end
+            else
+                if isTriangularFace
+                    facesNodes = facesNodes(1:end-1);
+                end
             end
 
             if all(ismember(facesNodes, elementNodes))

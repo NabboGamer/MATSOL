@@ -1,4 +1,4 @@
-function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(tableNodesFaces)
+function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(tableNodesFaces, elementsOrder)
     %CREATEARRAYNODESSIDES si occupa di creare la matrice NODI-LATI per tutte le facce
 
     arrayNodesFaces = table2array(tableNodesFaces);
@@ -9,8 +9,13 @@ function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(ta
     numTriangularFaces = sum(any(arrayNodesFaces == -1, 2));
     numRectangularFaces = numFaces - numTriangularFaces;
 
-    numSidesPerTriangularFace = 3;     % Ogni faccia triangolare ha 3 lati
-    numSidesPerRectangularFace = 4;    % Ogni faccia rettangolare ha 4 lati
+    if elementsOrder == 2
+        numSidesPerTriangularFace = 6;     % Ogni faccia triangolare ha 6 lati
+        numSidesPerRectangularFace = 8;    % Ogni faccia rettangolare ha 8 lati
+    else
+        numSidesPerTriangularFace = 3;     % Ogni faccia triangolare ha 3 lati
+        numSidesPerRectangularFace = 4;    % Ogni faccia rettangolare ha 4 lati
+    end
 
     numNodesPerSide = 2;               % Ogni lato è definito da 2 nodi
 
@@ -20,7 +25,6 @@ function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(ta
     % Creare due array per memorizzare tutti i lati
     arrayNodesSidesTriangle = zeros(numSidesTriangle, numNodesPerSide);
     arrayNodesSidesRectangle = zeros(numSidesRectangle, numNodesPerSide);
-    
 
     % Trova le righe con almeno un -1
     retentionIndices = any(arrayNodesFaces == -1, 2);
@@ -29,12 +33,23 @@ function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(ta
     for i = 1:numTriangularFaces
         % Prendere i nodi della faccia corrente
         face = arrayNodesTriangularFaces(i, :);
-        face = face(1:end-1);
 
-        % Generare i lati per la faccia corrente (lati per una faccia triangolare)
-        faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
-                     face(2), face(3);  % Lato destro     (N2, N3)
-                     face(3), face(1)]; % Lato sinistro   (N3, N1)
+        if elementsOrder == 2
+            face = face(1:end-2);
+            % Generare i lati per la faccia corrente (lati per una faccia triangolare)
+            faceSides = [face(1), face(2);  % Lato inferiore 1
+                         face(2), face(3);  % Lato inferiore 2
+                         face(3), face(4);  % Lato destro 1
+                         face(4), face(5);  % Lato destro 2
+                         face(5), face(6);  % Lato sinistro 1
+                         face(6), face(1)]; % Lato sinistro 2
+        else
+            face = face(1:end-1);
+            % Generare i lati per la faccia corrente (lati per una faccia triangolare)
+            faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
+                         face(2), face(3);  % Lato destro     (N2, N3)
+                         face(3), face(1)]; % Lato sinistro   (N3, N1)
+        end
             
         % Inserimento delle facce nella matrice NODI-LATI
         startIdx = (i - 1) * numSidesPerTriangularFace + 1;
@@ -51,11 +66,23 @@ function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(ta
         % Prendere i nodi della faccia corrente
         face = arrayNodesRectangularFaces(j, :);
 
-        % Generare i lati per la faccia corrente (lati per una faccia quadrilatera)
-        faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
-                     face(2), face(4);  % Lato destro     (N2, N4)
-                     face(4), face(3);  % Lato superiore  (N4, N3)
-                     face(3), face(1)]; % Lato sinistro   (N3, N1)
+        if elementsOrder == 2
+            % Generare i lati per la faccia corrente (lati per una faccia quadrilatera)
+            faceSides = [face(1), face(2);  % Lato inferiore 1
+                         face(2), face(3);  % Lato inferiore 2
+                         face(3), face(4);  % Lato destro 1
+                         face(4), face(5);  % Lato destro 2
+                         face(5), face(6);  % Lato superiore 1
+                         face(6), face(7);  % Lato superiore 2
+                         face(7), face(8);  % Lato sinistro 1
+                         face(8), face(1)]; % Lato sinistro 2
+        else
+            % Generare i lati per la faccia corrente (lati per una faccia quadrilatera)
+            faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
+                         face(2), face(4);  % Lato destro     (N2, N4)
+                         face(4), face(3);  % Lato superiore  (N4, N3)
+                         face(3), face(1)]; % Lato sinistro   (N3, N1)
+        end
             
         % Inserimento delle facce nella matrice NodiLati
         startIdx = (j - 1) * numSidesPerRectangularFace + 1;
