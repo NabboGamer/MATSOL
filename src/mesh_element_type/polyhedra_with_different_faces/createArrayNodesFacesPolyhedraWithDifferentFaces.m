@@ -29,11 +29,11 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyh
                     % TODO: Inserire nodo centrale per facce quadrate che manca,
                     % inserirlo come ultimo nodo in modo che sarà poi
                     % semplice creare i lati
-                    nodes([6, 5, 3, 2, 1, 4]),-1,-1;          % Faccia inferiore
-                    nodes([15, 17, 18, 16, 13, 14]),-1,-1;    % Faccia superiore
-                    nodes([3, 9, 15, 14, 13, 7, 1, 2]);       % Faccia laterale 1
-                    nodes([18, 12, 6, 4, 1, 7, 13, 16]);      % Faccia laterale 2
-                    nodes([3, 9, 15, 17, 18, 12, 6, 5]);      % Faccia laterale 3
+                    nodes([6, 5, 3, 2, 1, 4]),-1,-1,-1;              % Faccia inferiore
+                    nodes([15, 17, 18, 16, 13, 14]),-1,-1,-1;        % Faccia superiore
+                    nodes([3, 9, 15, 14, 13, 7, 1, 2, 8]);           % Faccia laterale 1
+                    nodes([18, 12, 6, 4, 1, 7, 13, 16, 10]);         % Faccia laterale 2
+                    nodes([3, 9, 15, 17, 18, 12, 6, 5, 11]);         % Faccia laterale 3
                 ];   
             elseif strcmp(elementType, 'pyr')
                 % Definizione delle 5 facce per l'elemento secondo la notazione corretta

@@ -38,7 +38,7 @@ function createIncidenceMatrices
         labelNameArray(i,1) = model.component(modelComponentTagList(i)).label();
     end
     labelNameArray(:,2) = modelComponentTagList(:);   
-    searchedString = 'componentCube2';
+    searchedString = 'componentCube';
     modelComponentTagPos = strcmp(labelNameArray(:, 1), searchedString);
     if ~any(modelComponentTagPos)
         cprintf('Errors','***ERROR: non esiste nessun componente con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il NAME del componente \n');
@@ -58,7 +58,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshPyr';
+    searchedString = 'meshPrism';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
     if ~any(selectedMeshTagPos)
         cprintf('Errors', '***ERROR: non esiste nessuna mesh con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il TAG della mesh \n');
@@ -163,7 +163,7 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'pyr';
+    searchedString = 'prism';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
