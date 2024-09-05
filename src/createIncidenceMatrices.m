@@ -20,7 +20,7 @@ function createIncidenceMatrices
     model = mphload('C:\Users\stolf\dev\Progetto Modelli Numerici per Campi e Circuiti\MATSOL\model\component_library_RF.mph');
     [msg, ~] = lastwarn;
     if ~isempty(msg)
-        cprintf('SystemCommands','***WARNING: %s\n', msg);
+        cprintf('SystemCommands', '***WARNING: %s\n', msg);
         lastwarn('');
     end
     warning(oldWarnState);
@@ -58,7 +58,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshHex3';
+    searchedString = 'meshTet';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
     if ~any(selectedMeshTagPos)
         cprintf('Errors', '***ERROR: non esiste nessuna mesh con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il TAG della mesh \n');
@@ -163,7 +163,7 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'hex';
+    searchedString = 'tet';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
@@ -263,23 +263,26 @@ function createIncidenceMatrices
     fprintf("Inizio generazione matrice di incidenza DOMINI-ELEMENTI...\n");
     tic;
     if elementsOrder == 2
-        cprintf('Comments', '***DEBUG: Purtroppo al momento il livelink non fornisce informazioni relative al dominio di appartenenza per elementi del secondo ordine, quindi questa matrice non può essere generata \n');
+        cprintf('Keywords', '***INFO: Purtroppo al momento il livelink non fornisce informazioni relative al dominio di appartenenza per elementi del secondo ordine, quindi questa matrice non può essere generata \n');
+        tempo_esecuzione = toc;
+        fprintf("Generazione interrotta dopo %f sec!\n", tempo_esecuzione);
+        fprintf('\n');
     else
         arrayDomainsElements = meshdata.elementity{meshdataTypePos};
         faceLabels = strcat('e_', string(1:size(arrayDomainsElements, 1)))';
         domainLabels = "domain";
         tableDomainsElements = array2table(arrayDomainsElements, 'RowNames', faceLabels, 'VariableNames', domainLabels);
         assignin('base', 'tableDomainsElements', tableDomainsElements);
+        tempo_esecuzione = toc;
+        fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
+        fprintf('\n');
     end
-    tempo_esecuzione = toc;
-    fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
-    fprintf('\n');
 
     % MATRICE FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO
     fprintf("Inizio generazione matrice di incidenza FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO...\n");
     tic;
     numberOfBoundary = model.geom(selectedComponentGeometryTag).getNBoundaries();
-    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithAllFacesEqual(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary, elementsOrder);
+    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithAllFacesEqual(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary, searchedString, elementsOrder);
     boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
     BoundaryFacesDomainLabels = "bf_domain";
     tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
@@ -287,6 +290,5 @@ function createIncidenceMatrices
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
-
 
 end

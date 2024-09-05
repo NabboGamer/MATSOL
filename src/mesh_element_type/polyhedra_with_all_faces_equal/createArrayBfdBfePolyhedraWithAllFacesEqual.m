@@ -1,4 +1,4 @@
-function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithAllFacesEqual(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary, elementsOrder)
+function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithAllFacesEqual(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary, elementType, elementsOrder)
     %CREATEARRAYARRAYBOUNDARYFACESDOMAINBOUNDARYFACESELEMENT si occupa di creare la matrice FACCE_DOMINIO-FACCE_ELEMENTO
 
     arrayNodesBoundaryFaces = table2array(tableNodesBoundaryFaces);
@@ -18,7 +18,11 @@ function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhed
         faceNodes = arrayNodesBoundaryFaces(i,:);
         % Elimino nodi intermedi presenti nella faccia
         if elementsOrder == 2
-            faceNodes([2 5 8]) = [];
+            if strcmp(elementType, 'hex')
+                faceNodes([2 5 8]) = [];
+            elseif strcmp(elementType, 'tet')
+                faceNodes([2 4 6]) = [];
+            end 
         end
         faceCoordinates = arrayNodalCoordinates(faceNodes, :);
 

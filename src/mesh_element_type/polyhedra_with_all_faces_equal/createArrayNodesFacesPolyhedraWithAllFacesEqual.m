@@ -51,10 +51,10 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyh
             elseif strcmp(elementType, 'tet')
                 % Definizione delle 6 facce per l'elemento secondo la notazione corretta
                 faces = [
-                    nodes([1, 2, 3, 5, 6, 7]);       % Faccia inferiore    (N1, N2, N3, N5, N6, N7)
-                    nodes([1, 2, 4, 5, 8, 9]);       % Faccia laterale 1   (N1, N2, N4, N5, N8, N9)
-                    nodes([1, 3, 4, 6, 8, 10]);      % Faccia laterale 2   (N1, N3, N4, N6, N8, N10)
-                    nodes([2, 3, 4, 7, 9, 10]);      % Faccia laterale 3   (N2, N3, N4, N7, N9, N10)
+                    nodes([6, 9, 10, 7, 1, 4]);       % Faccia inferiore
+                    nodes([6, 9, 10, 8, 3, 5]);       % Faccia laterale 1
+                    nodes([6, 5, 3, 2, 1, 4]);        % Faccia laterale 2
+                    nodes([10, 7, 1, 2, 3, 8]);       % Faccia laterale 3
                 ]; 
             end
         else

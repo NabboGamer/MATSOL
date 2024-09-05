@@ -31,19 +31,22 @@ function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithAllFacesEqual(tab
         if elementsOrder == 2
             if strcmp(elementType, 'hex')
                 % Generare i lati per la faccia corrente (lati per una faccia quadrilatera)
-                faceSides = [face(1), face(2);  % Lato inferiore
-                             face(2), face(3);  % Lato destro
-                             face(3), face(6);  % Lato superiore
-                             face(6), face(9);  % Lato sinistro
-                             face(9), face(8);  % Lato inferiore
-                             face(8), face(7);  % Lato destro
-                             face(7), face(4);  % Lato superiore
-                             face(4), face(1)]; % Lato sinistro
+                faceSides = [face(1), face(2);  % Lato inferiore 1
+                             face(2), face(3);  % Lato inferiore 2
+                             face(3), face(6);  % Lato destro 1
+                             face(6), face(9);  % Lato destro 2
+                             face(9), face(8);  % Lato superiore 1
+                             face(8), face(7);  % Lato superiore 2
+                             face(7), face(4);  % Lato sinistro 1
+                             face(4), face(1)]; % Lato sinistro 2
             elseif strcmp(elementType, 'tet')
                 % Generare i lati per la faccia corrente (lati per una faccia triangolare)
-                faceSides = [face(1), face(2);  % Lato inferiore  (N1, N2)
-                             face(2), face(3);  % Lato destro     (N2, N3)
-                             face(3), face(1)]; % Lato sinistro   (N3, N1)
+                faceSides = [face(1), face(2);  % Lato inferiore 1
+                             face(2), face(3);  % Lato inferiore 2
+                             face(3), face(4);  % Lato destro 1
+                             face(4), face(5);  % Lato destro 2
+                             face(5), face(6);  % Lato sinistro 1
+                             face(6), face(1)]; % Lato sinistro 2
             end
         else
             if strcmp(elementType, 'hex')
