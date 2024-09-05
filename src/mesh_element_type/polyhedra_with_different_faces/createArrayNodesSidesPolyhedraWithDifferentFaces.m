@@ -35,7 +35,7 @@ function [arrayNodesSides] = createArrayNodesSidesPolyhedraWithDifferentFaces(ta
         face = arrayNodesTriangularFaces(i, :);
 
         if elementsOrder == 2
-            face = face(1:end-2);
+            face = face(1:end-3);
             % Generare i lati per la faccia corrente (lati per una faccia triangolare)
             faceSides = [face(1), face(2);  % Lato inferiore 1
                          face(2), face(3);  % Lato inferiore 2

@@ -18,7 +18,7 @@ function arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFace
             isTriangularFace = any(facesNodes == -1, 2);
             if elementsOrder == 2
                 if isTriangularFace
-                    facesNodes = facesNodes(1:end-2);
+                    facesNodes = facesNodes(1:end-3);
                 end
             else
                 if isTriangularFace

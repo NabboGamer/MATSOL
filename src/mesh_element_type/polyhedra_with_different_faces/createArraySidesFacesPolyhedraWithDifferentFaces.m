@@ -23,7 +23,7 @@ function arraySidesFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tabl
         isTriangularFace = any(faceNodes == -1, 2);
         if elementsOrder == 2
             if isTriangularFace
-                faceNodes = faceNodes(1:end-2);
+                faceNodes = faceNodes(1:end-3);
             end
         else
             if isTriangularFace

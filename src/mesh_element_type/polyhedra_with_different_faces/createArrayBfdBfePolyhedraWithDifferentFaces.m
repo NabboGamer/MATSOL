@@ -19,10 +19,10 @@ function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhed
         isTriangularFace = any(faceNodes == -1, 2);
         if elementsOrder == 2
             if isTriangularFace
-                faceNodes = faceNodes(1:end-2);
+                faceNodes = faceNodes(1:end-3);
                 faceNodes([2 4 6]) = [];
             else
-                faceNodes([2 4 6 8]) = [];
+                faceNodes([2 4 6 8 9]) = [];
             end
         else
             if isTriangularFace

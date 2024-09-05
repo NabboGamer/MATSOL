@@ -7,7 +7,7 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyh
     numElements = size(arrayNodesElements, 1);
     numFacesPerElement = 5;             % Ogni prisma retto triangolare ha 5 facce(2 triangoli e 3 rettangoli)
     if elementsOrder == 2
-        numNodesPerRectangularFace = 8;     % Ogni faccia rettangolare è definita da 4 nodi
+        numNodesPerRectangularFace = 9;     % Ogni faccia rettangolare è definita da 4 nodi
         % numNodesPerTriangularFace = 6;      % Ogni faccia triangolare è definita da 3 nodi
     else
         numNodesPerRectangularFace = 4;     % Ogni faccia rettangolare è definita da 4 nodi
@@ -26,6 +26,9 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyh
             if strcmp(elementType, 'prism')
                 % Definizione delle 5 facce per l'elemento secondo la notazione corretta
                 faces = [
+                    % TODO: Inserire nodo centrale per facce quadrate che manca,
+                    % inserirlo come ultimo nodo in modo che sarà poi
+                    % semplice creare i lati
                     nodes([6, 5, 3, 2, 1, 4]),-1,-1;          % Faccia inferiore
                     nodes([15, 17, 18, 16, 13, 14]),-1,-1;    % Faccia superiore
                     nodes([3, 9, 15, 14, 13, 7, 1, 2]);       % Faccia laterale 1
@@ -35,11 +38,11 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyh
             elseif strcmp(elementType, 'pyr')
                 % Definizione delle 5 facce per l'elemento secondo la notazione corretta
                 faces = [
-                    nodes([1, 2, 3, 4]);    % Faccia inferiore
-                    nodes([1, 2, 5]),-1;    % Faccia laterale 1
-                    nodes([1, 3, 5]),-1;    % Faccia laterale 2
-                    nodes([2, 4, 5]),-1;    % Faccia laterale 3
-                    nodes([3, 4, 5]),-1;    % Faccia laterale 4
+                    nodes([7, 8, 9, 6, 3, 2, 1, 4, 5]);       % Faccia inferiore
+                    nodes([7, 4, 1, 10, 14, 12]),-1,-1,-1;    % Faccia laterale 1
+                    nodes([1, 2, 3, 11, 14, 10]),-1,-1,-1;    % Faccia laterale 2
+                    nodes([3, 6, 9, 13, 14, 11]),-1,-1,-1;    % Faccia laterale 3
+                    nodes([9, 8, 7, 12, 14, 13]),-1,-1,-1;    % Faccia laterale 4
                 ];
             end
         else
