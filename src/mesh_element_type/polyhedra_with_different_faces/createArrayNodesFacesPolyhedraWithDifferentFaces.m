@@ -26,9 +26,6 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyh
             if strcmp(elementType, 'prism')
                 % Definizione delle 5 facce per l'elemento secondo la notazione corretta
                 faces = [
-                    % TODO: Inserire nodo centrale per facce quadrate che manca,
-                    % inserirlo come ultimo nodo in modo che sarà poi
-                    % semplice creare i lati
                     nodes([6, 5, 3, 2, 1, 4]),-1,-1,-1;              % Faccia inferiore
                     nodes([15, 17, 18, 16, 13, 14]),-1,-1,-1;        % Faccia superiore
                     nodes([3, 9, 15, 14, 13, 7, 1, 2, 8]);           % Faccia laterale 1
