@@ -127,14 +127,14 @@ function createIncidenceMatrices
         % compongono la mesh.
         cprintf('Comments', '***DEBUG: Mesh con elementi del SECONDO ordine \n');
         extendedMeshInfo = mphxmeshinfo(model);
-        assignin('base', 'extendedMeshInfo', extendedMeshInfo);
+        % assignin('base', 'extendedMeshInfo', extendedMeshInfo);
         meshdataTypeList = string(extendedMeshInfo.meshtypes);
         assignin('base', 'meshdataTypesList', meshdataTypeList);
     else
         cprintf('Comments', '***DEBUG: Mesh con elementi del PRIMO ordine \n');
         [meshstats,meshdata] = mphmeshstats(model, selectedMeshTag);
-        assignin('base', 'meshstats', meshstats);
-        assignin('base', 'meshdata', meshdata);
+        % assignin('base', 'meshstats', meshstats);
+        % assignin('base', 'meshdata', meshdata);
         meshdataTypeList = string(meshdata.types);
         assignin('base', 'meshdataTypesList', meshdataTypeList);
     end
@@ -155,7 +155,7 @@ function createIncidenceMatrices
     coordinateLabels = ["x", "y", "z"];
     % Creazione della tabella degli elementi
     tableNodalCoordinates = array2table(transposedMatrixNodes, 'RowNames', nodeLabels, 'VariableNames', coordinateLabels);
-    assignin('base', 'tableNodalCoordinates', tableNodalCoordinates);
+    % assignin('base', 'tableNodalCoordinates', tableNodalCoordinates);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
@@ -184,7 +184,7 @@ function createIncidenceMatrices
     elementLabels = strcat('e_', string(1:size(transposedMatrixElements, 1)))';
     nodeLabels = strcat('n_', string(1:size(transposedMatrixElements, 2)));
     tableNodesElements = array2table(transposedMatrixElements, 'RowNames', elementLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableNodesElements', tableNodesElements);
+    % assignin('base', 'tableNodesElements', tableNodesElements);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
@@ -196,11 +196,11 @@ function createIncidenceMatrices
     faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
     tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableNodesFaces', tableNodesFaces);
+    % assignin('base', 'tableNodesFaces', tableNodesFaces);
     boundaryFaceLabels = strcat('bf_', string(1:size(arrayNodesBoundaryFaces, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesBoundaryFaces, 2)));
     tableNodesBoundaryFaces = array2table(arrayNodesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
+    % assignin('base', 'tableNodesBoundaryFaces', tableNodesBoundaryFaces);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
@@ -212,7 +212,7 @@ function createIncidenceMatrices
     sideLabels = strcat('s_', string(1:size(arrayNodesSides, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesSides, 2)));
     tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
-    assignin('base', 'tableNodesSides', tableNodesSides);
+    % assignin('base', 'tableNodesSides', tableNodesSides);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
@@ -224,7 +224,7 @@ function createIncidenceMatrices
     elementLabels = strcat('e_', string(1:size(arrayFacesElements, 1)))';
     faceLabels = strcat('f_', string(1:size(arrayFacesElements, 2)));
     tableFacesElements = array2table(arrayFacesElements, 'RowNames', elementLabels, 'VariableNames', faceLabels);
-    assignin('base', 'tableFacesElements', tableFacesElements);
+    % assignin('base', 'tableFacesElements', tableFacesElements);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
@@ -236,7 +236,7 @@ function createIncidenceMatrices
     elementLabels = strcat('e_', string(1:size(arraySidesElements, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesElements, 2)));
     tableSidesElements = array2table(arraySidesElements, 'RowNames', elementLabels, 'VariableNames', sideLabels);
-    assignin('base', 'tableSidesElements', tableSidesElements);
+    % assignin('base', 'tableSidesElements', tableSidesElements);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
@@ -248,13 +248,13 @@ function createIncidenceMatrices
     faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
     tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
-    assignin('base', 'tableSidesFaces', tableSidesFaces);
+    % assignin('base', 'tableSidesFaces', tableSidesFaces);
 
     arraySidesBoundaryFaces = createArraySidesFacesPolyhedraWithAllFacesEqual(tableNodesBoundaryFaces, tableNodesSides, searchedString, elementsOrder);
     boundaryFaceLabels = strcat('bf_', string(1:size(arraySidesBoundaryFaces, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesBoundaryFaces, 2)));
     tableSidesBoundaryFaces = array2table(arraySidesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', sideLabels);
-    assignin('base', 'tableSidesBoundaryFaces', tableSidesBoundaryFaces);
+    % assignin('base', 'tableSidesBoundaryFaces', tableSidesBoundaryFaces);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
@@ -286,9 +286,25 @@ function createIncidenceMatrices
     boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
     BoundaryFacesDomainLabels = "bf_domain";
     tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
-    assignin('base', 'tableBoundaryFacesDomainBoundaryFacesElement', tableBoundaryFacesDomainBoundaryFacesElement);
+    % assignin('base', 'tableBoundaryFacesDomainBoundaryFacesElement', tableBoundaryFacesDomainBoundaryFacesElement);
     tempo_esecuzione = toc;
     fprintf("Generazione completata in %f sec!\n", tempo_esecuzione);
     fprintf('\n');
 
+    %% Creazione della struct che contiene le matrici di incidenza
+    incidenceMatrices = struct();
+    incidenceMatrices.tableNodalCoordinates = tableNodalCoordinates;
+    incidenceMatrices.tableNodesElements = tableNodesElements;
+    incidenceMatrices.tableNodesFaces = tableNodesFaces;
+    incidenceMatrices.tableNodesBoundaryFaces = tableNodesBoundaryFaces;
+    incidenceMatrices.tableNodesSides = tableNodesSides;
+    incidenceMatrices.tableFacesElements = tableFacesElements;
+    incidenceMatrices.tableSidesElements = tableSidesElements;
+    incidenceMatrices.tableSidesFaces = tableSidesFaces;
+    incidenceMatrices.tableSidesBoundaryFaces = tableSidesBoundaryFaces;
+    if elementsOrder ~= 2   
+        incidenceMatrices.tableDomainsElements = tableDomainsElements;
+    end
+    incidenceMatrices.tableBoundaryFacesDomainBoundaryFacesElement = tableBoundaryFacesDomainBoundaryFacesElement;
+    assignin('base', 'incidenceMatrices', incidenceMatrices);
 end
