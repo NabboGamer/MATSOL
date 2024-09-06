@@ -35,18 +35,24 @@ function [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyh
             % N.B.: In questo caso le facce non le ho formate seguendo
             %       la convenzione dettata da COMSOL, poichè i nodi non
             %       si trovavano in quell'ordine nelle righe dell'array ricavato
-            %       con mphxmeshinfo. Le ho invece formate disegnando a
+            %       con mphxmeshinfo portando alla creazione di elementi 
+            %       inconsistenti. Le ho invece formate disegnando a
             %       mano un elemento qualsiasi e trovando la posizione nell'array
             %       dei nodi che formano le varie facce per quell'elemento.
+            %       La convenzione ideata da me per l'ordinamento dei nodi
+            %       è la seguente: immaginando di avere di fronte la
+            %       faccia si inizia dalla sinistra in basso e si procede
+            %       in verso antiorario fino a terminare i nodi, ponendo il
+            %       nodo baricentrico come ultimo nodo.
             if strcmp(elementType, 'hex')
                 % Definizione delle 6 facce per l'elemento secondo la notazione corretta
                 faces = [
-                    nodes([1, 2, 3, 4, 5, 6, 7, 8, 9]);             % Faccia inferiore
-                    nodes([19, 20, 21, 22, 23, 24, 25, 26, 27]);    % Faccia superiore
-                    nodes([1, 4, 7, 10, 13, 16, 19, 22, 25]);       % Faccia frontale
-                    nodes([3, 6, 9, 12, 15, 18, 21, 24, 27]);       % Faccia posteriore
-                    nodes([7, 8, 9, 16, 17, 18, 25, 26, 27]);       % Faccia sinistra
-                    nodes([1, 2, 3, 10, 11, 12, 19, 20, 21]);       % Faccia destra
+                    nodes([1, 2, 3, 6, 9, 8, 7, 4, 5]);             % Faccia inferiore
+                    nodes([19, 20, 21, 24, 27, 26, 25, 22, 23]);    % Faccia superiore
+                    nodes([7, 4, 1, 10, 19, 22, 25, 16, 13]);       % Faccia frontale
+                    nodes([3, 6, 9, 18, 27, 24, 21, 12, 15]);       % Faccia posteriore
+                    nodes([9, 8, 7, 16, 25, 26, 27, 18, 17]);       % Faccia sinistra
+                    nodes([1, 2, 3, 12, 21, 20, 19, 10, 11]);       % Faccia destra
                 ];
             elseif strcmp(elementType, 'tet')
                 % Definizione delle 6 facce per l'elemento secondo la notazione corretta

@@ -19,7 +19,7 @@ function arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhed
         % Elimino nodi intermedi presenti nella faccia
         if elementsOrder == 2
             if strcmp(elementType, 'hex')
-                faceNodes([2 5 8]) = [];
+                faceNodes([2 4 6 8 9]) = [];
             elseif strcmp(elementType, 'tet')
                 faceNodes([2 4 6]) = [];
             end 

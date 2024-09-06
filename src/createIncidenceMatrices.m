@@ -58,7 +58,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshPrism';
+    searchedString = 'meshHex3';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
     if ~any(selectedMeshTagPos)
         cprintf('Errors', '***ERROR: non esiste nessuna mesh con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il TAG della mesh \n');
@@ -163,7 +163,7 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'prism';
+    searchedString = 'hex';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
@@ -192,7 +192,7 @@ function createIncidenceMatrices
     % MATRICE NODI-FACCE(totali e di frontiera)
     fprintf("Inizio generazione matrice di incidenza NODI-FACCE(tot e fro)...\n");
     tic;
-    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithDifferentFaces(tableNodesElements, searchedString, elementsOrder);
+    [arrayNodesFaces, arrayNodesBoundaryFaces] = createArrayNodesFacesPolyhedraWithAllFacesEqual(tableNodesElements, searchedString, elementsOrder);
     faceLabels = strcat('f_', string(1:size(arrayNodesFaces, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesFaces, 2)));
     tableNodesFaces = array2table(arrayNodesFaces, 'RowNames', faceLabels, 'VariableNames', nodeLabels);
@@ -208,7 +208,7 @@ function createIncidenceMatrices
     % MATRICE NODI-LATI
     fprintf("Inizio generazione matrice di incidenza NODI-LATI...\n");
     tic;
-    arrayNodesSides = createArrayNodesSidesPolyhedraWithDifferentFaces(tableNodesFaces, elementsOrder);
+    arrayNodesSides = createArrayNodesSidesPolyhedraWithAllFacesEqual(tableNodesFaces, searchedString, elementsOrder);
     sideLabels = strcat('s_', string(1:size(arrayNodesSides, 1)))';
     nodeLabels = strcat('n_', string(1:size(arrayNodesSides, 2)));
     tableNodesSides = array2table(arrayNodesSides, 'RowNames', sideLabels, 'VariableNames', nodeLabels);
@@ -220,7 +220,7 @@ function createIncidenceMatrices
     % MATRICE FACCE-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza FACCE-ELEMENTI...\n");
     tic;
-    arrayFacesElements = createArrayFacesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesFaces, elementsOrder);
+    arrayFacesElements = createArrayFacesElementsPolyhedraWithAllFacesEqual(tableNodesElements, tableNodesFaces, searchedString);
     elementLabels = strcat('e_', string(1:size(arrayFacesElements, 1)))';
     faceLabels = strcat('f_', string(1:size(arrayFacesElements, 2)));
     tableFacesElements = array2table(arrayFacesElements, 'RowNames', elementLabels, 'VariableNames', faceLabels);
@@ -232,7 +232,7 @@ function createIncidenceMatrices
     % MATRICE LATI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza LATI-ELEMENTI...\n");
     tic;
-    arraySidesElements = createArraySidesElementsPolyhedraWithDifferentFaces(tableNodesElements, tableNodesSides, searchedString, elementsOrder);
+    arraySidesElements = createArraySidesElementsPolyhedraWithAllFacesEqual(tableNodesElements, tableNodesSides, searchedString, elementsOrder);
     elementLabels = strcat('e_', string(1:size(arraySidesElements, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesElements, 2)));
     tableSidesElements = array2table(arraySidesElements, 'RowNames', elementLabels, 'VariableNames', sideLabels);
@@ -244,13 +244,13 @@ function createIncidenceMatrices
     % MATRICE LATI-FACCE(totali e di frontiera)
     fprintf("Inizio generazione matrice di incidenza LATI-FACCE(tot e fro)...\n");
     tic;
-    arraySidesFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tableNodesFaces, tableNodesSides, elementsOrder);
+    arraySidesFaces = createArraySidesFacesPolyhedraWithAllFacesEqual(tableNodesFaces, tableNodesSides, searchedString, elementsOrder);
     faceLabels = strcat('f_', string(1:size(arraySidesFaces, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesFaces, 2)));
     tableSidesFaces = array2table(arraySidesFaces, 'RowNames', faceLabels, 'VariableNames', sideLabels);
     assignin('base', 'tableSidesFaces', tableSidesFaces);
 
-    arraySidesBoundaryFaces = createArraySidesFacesPolyhedraWithDifferentFaces(tableNodesBoundaryFaces, tableNodesSides, elementsOrder);
+    arraySidesBoundaryFaces = createArraySidesFacesPolyhedraWithAllFacesEqual(tableNodesBoundaryFaces, tableNodesSides, searchedString, elementsOrder);
     boundaryFaceLabels = strcat('bf_', string(1:size(arraySidesBoundaryFaces, 1)))';
     sideLabels = strcat('s_', string(1:size(arraySidesBoundaryFaces, 2)));
     tableSidesBoundaryFaces = array2table(arraySidesBoundaryFaces, 'RowNames', boundaryFaceLabels, 'VariableNames', sideLabels);
@@ -282,7 +282,7 @@ function createIncidenceMatrices
     fprintf("Inizio generazione matrice di incidenza FACCE_FRONTIERA_DOMINIO-FACCE_FRONTIERA_ELEMENTO...\n");
     tic;
     numberOfBoundary = model.geom(selectedComponentGeometryTag).getNBoundaries();
-    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithDifferentFaces(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary, elementsOrder);
+    arrayBoundaryFacesDomainBoundaryFacesElement = createArrayBfdBfePolyhedraWithAllFacesEqual(model, tableNodesBoundaryFaces, tableNodalCoordinates, selectedComponentGeometryTag, numberOfBoundary, searchedString, elementsOrder);
     boundaryFacesElementLabels = strcat('bf_element_', string(1:size(arrayBoundaryFacesDomainBoundaryFacesElement, 1)))';
     BoundaryFacesDomainLabels = "bf_domain";
     tableBoundaryFacesDomainBoundaryFacesElement = array2table(arrayBoundaryFacesDomainBoundaryFacesElement, 'RowNames', boundaryFacesElementLabels, 'VariableNames', BoundaryFacesDomainLabels);
