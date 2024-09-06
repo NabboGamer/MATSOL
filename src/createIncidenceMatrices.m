@@ -293,18 +293,48 @@ function createIncidenceMatrices
 
     %% Creazione della struct che contiene le matrici di incidenza
     incidenceMatrices = struct();
-    incidenceMatrices.tableNodalCoordinates = tableNodalCoordinates;
-    incidenceMatrices.tableNodesElements = tableNodesElements;
-    incidenceMatrices.tableNodesFaces = tableNodesFaces;
-    incidenceMatrices.tableNodesBoundaryFaces = tableNodesBoundaryFaces;
-    incidenceMatrices.tableNodesSides = tableNodesSides;
-    incidenceMatrices.tableFacesElements = tableFacesElements;
-    incidenceMatrices.tableSidesElements = tableSidesElements;
-    incidenceMatrices.tableSidesFaces = tableSidesFaces;
-    incidenceMatrices.tableSidesBoundaryFaces = tableSidesBoundaryFaces;
-    if elementsOrder ~= 2   
-        incidenceMatrices.tableDomainsElements = tableDomainsElements;
+    incidenceMatrices.arrayNodalCoordinates = transposedMatrixNodes;
+    incidenceMatrices.arrayNodesElements = transposedMatrixElements;
+    incidenceMatrices.arrayNodesFaces = arrayNodesFaces;
+    incidenceMatrices.arrayNodesBoundaryFaces = arrayNodesBoundaryFaces;
+    incidenceMatrices.arrayNodesSides = arrayNodesSides;
+    incidenceMatrices.arrayFacesElements = arrayFacesElements;
+    incidenceMatrices.arraySidesElements = arraySidesElements;
+    incidenceMatrices.arraySidesFaces = arraySidesFaces;
+    incidenceMatrices.arraySidesBoundaryFaces = arraySidesBoundaryFaces;
+    if elementsOrder < 2   
+        incidenceMatrices.arrayDomainsElements = arrayDomainsElements;
     end
-    incidenceMatrices.tableBoundaryFacesDomainBoundaryFacesElement = tableBoundaryFacesDomainBoundaryFacesElement;
+    incidenceMatrices.arrayBoundaryFacesDomainBoundaryFacesElement = arrayBoundaryFacesDomainBoundaryFacesElement;
     assignin('base', 'incidenceMatrices', incidenceMatrices);
+
+    %% Salvataggio della struct sul disco
+    % Converto la struct in formato JSON
+    jsonString = jsonencode(incidenceMatrices);
+    
+    % Specifico il nome(con percorso) del file in cui salvare la struttura
+    fileName = '../saved_matrices/incidenceMatrices.json';
+    
+    % Verifico se il file esiste già
+    if exist(fileName, 'file')
+        cprintf('SystemCommands', '***WARNING: Il file %s esiste già, verrà creato un nuovo file \n', fileName);
+        [~, name, ext] = fileparts(fileName);
+        timestamp = datetime('now', 'Format', 'dd-MM-yyyy_HH-mm');
+        fileName = ["../saved_matrices/", string(name), "_", string(timestamp), string(ext)];
+        fileName = string(strjoin(fileName, ""));
+    end
+    
+    % Creo e apro il file in modalità scrittura
+    fileID = fopen(fileName, 'w'); % 'w' crea il file se non esiste
+    
+    if fileID == -1
+        cprintf('Errors','***ERROR: non è stato possibile aprire il file per procedere con la scrittura \n');
+        return;
+    end
+    
+    % Scrivi la stringa JSON nel file
+    fprintf(fileID, '%s', jsonString);
+    fclose(fileID);
+    fprintf('La struttura dati contenente le matrici di incidenza è stata correttamente salvata sul disco nel file indicato! \n');
+
 end
