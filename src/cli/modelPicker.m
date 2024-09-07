@@ -11,6 +11,7 @@ function [model] = modelPicker()
     
     % Controllo se l'utente ha premuto "Annulla" o ha chiuso la finestra
     if isequal(fileName, 0)
+        model = -1;
         cprintf('Errors', 'No file selected, application will terminate! \n');
         cprintf('Text', '======================================================================= \n');
         return;
@@ -31,6 +32,7 @@ function [model] = modelPicker()
     end
     
     if ~validFormat
+        model = -1;
         cprintf('Errors', 'Invalid file format, application will terminate! \n');
         cprintf('Text', '======================================================================= \n');
         return;
