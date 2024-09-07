@@ -8,3 +8,13 @@
     \|__|     \|__|\|__|\|__|    \|__| |\_________\|_______|\|_______|
 =======================================\|_________|====================
 powered by COMSOL LiveLink for MATLAB                           (v.1.0)
+=======================================================================
+CLI                         by Michael
+Incidence Matrices          by Michael
+Transformation Matrices     by Rocco
+Shape Functions             by Ivan
+=======================================================================
+Welcome to MATSOL! 
+MATSOL is a CLI that allows you to extract data of interest from a 
+COMSOL model and then load it into MATLAB for subsequent processing.
+=======================================================================
