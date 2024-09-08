@@ -43,14 +43,14 @@ function in_domain = checkFaceInDomain(domain_face, mesh_face)
 
     domain_poly = polyshape(domain_2D(:, 1), domain_2D(:, 2));
 
-    % Recupera l'ultimo warning
-    [msg, ~] = lastwarn;
-    % Se un warning è stato generato, stampa un messaggio personalizzato
-    if ~isempty(msg)
-        cprintf('SystemCommands', '***WARNING: %s\n', msg);
-        % Pulire la lista dei warning dopo averli gestiti
-        lastwarn('');  % Resetta il messaggio e l'ID dell'ultimo warning
-    end
+    % % Recupera l'ultimo warning
+    % [msg, ~] = lastwarn;
+    % % Se un warning è stato generato, stampa un messaggio personalizzato
+    % if ~isempty(msg)
+    %     cprintf('SystemCommands', '***WARNING: %s\n', msg);
+    %     % Pulire la lista dei warning dopo averli gestiti
+    %     lastwarn('');  % Resetta il messaggio e l'ID dell'ultimo warning
+    % end
     % Ripristina la stampa dei warning di MATLAB
     warning(oldWarnState);
 
