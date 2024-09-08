@@ -217,6 +217,8 @@ function incidenceMatrices = createIncidenceMatricesForCLI(model, selectedCompon
         fprintf("Generation completed in %f sec!\n", tempo_esecuzione);
         fprintf('\n');
     end
+
+    cprintf('Text', '======================================================================= \n');
     
     if (flagsStruct.arrayNodesFaces.save ||...
         flagsStruct.arrayNodesBoundaryFaces.save ||...
