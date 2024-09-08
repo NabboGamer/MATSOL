@@ -262,7 +262,7 @@ function incidenceMatrices = createIncidenceMatricesForCLI(model, selectedCompon
         
         cprintf('Text', '\n');
         saveToJson(incidenceMatrices, fileName);
-        cprintf('Text', '======================================================================= \n');
     end
+    cprintf('Text', '======================================================================= \n');
     
 end
