@@ -1,6 +1,6 @@
 addpath('./cli');
-addpath('./polyhedra_types/polyhedra_with_all_faces_equal');
-addpath('./polyhedra_types/polyhedra_with_different_faces');
+addpath('./incidence_matrices/polyhedra_types/polyhedra_with_all_faces_equal');
+addpath('./incidence_matrices/polyhedra_types/polyhedra_with_different_faces');
 addpath('./utility');
 
 evalin('base', 'clear'), close all; clc;
@@ -29,8 +29,6 @@ ModelUtil.clear();
 cprintf('Text', 'Please select a COMSOL model to load... \n');
 model = modelPicker();
 if model == -1
-    cprintf('Errors', 'Sorry, something went wrong, application will terminate! \n');
-    cprintf('Text', '======================================================================= \n');
     return;
 else
     cprintf('Text', 'Model loading completed successfully! \n');
@@ -77,37 +75,20 @@ cprintf('Text', '\n');
 cprintf('Text', '\t 1) Incidence Matrices \n');
 cprintf('Text', '\n');
 
-while true
-    inputString = input('Selection-> ', 's');
-    try
-        choice = str2double(inputString);
-    catch
-        cprintf('Text','Invalid choice. Try again... \n');
-        continue;
-    end
-    if isfinite(choice) && choice > 0 && choice < 4 && choice == round(choice)
-        choice = round(choice);
-        break;
-    else
-        cprintf('Text','Invalid choice. Try again... \n');
-    end
-end
+choice = validateInput(1);
 cprintf('Text', '======================================================================= \n');
 
-%% Creazione delle matrici di incidenza
 if choice == 1
+    %% Creazione delle matrici di incidenza
     fields = {'arrayNodesFaces', 'arrayNodesBoundaryFaces', ...
              'arrayNodesSides', 'arrayFacesElements', 'arraySidesElements', ...
              'arraySidesFaces', 'arraySidesBoundaryFaces', 'arrayDomainsElements', ...
              'arrayBoundaryFacesDomainBoundaryFacesElement', 'arrayAll'};
     
-    bool1 = 'calculate';
-    bool2 = 'save';
-    
     flagsStruct = struct();
     
     for i = 1:length(fields)
-        internalStruct = struct(bool1, false, bool2, false);
+        internalStruct = struct('calculate', false, 'save', false);
         flagsStruct.(fields{i}) = internalStruct;
     end
 
@@ -124,22 +105,7 @@ if choice == 1
     cprintf('Text', '\t  9) BOUNDARY_FACES_DOMAINS-BOUNDARY_FACES_ELEMENTS \n');
     cprintf('Text', '\t 10) ALL \n');
     cprintf('Text', '\n');
-    
-    while true
-        inputString = input('Selection-> ', 's');
-        try
-            whichCalculate = str2double(inputString);
-        catch
-            cprintf('Text','Invalid choice. Try again... \n');
-            continue;
-        end
-        if isfinite(whichCalculate) && whichCalculate > 0 && whichCalculate < 11 && whichCalculate == round(whichCalculate)
-            whichCalculate = round(whichCalculate);
-            break;
-        else
-            cprintf('Text','Invalid choice. Try again... \n');
-        end
-    end
+    whichCalculate = validateInput(10);
     cprintf('Text', '======================================================================= \n');
 
     cprintf('Text', 'Wants the matrix to be saved on disk too: \n');
@@ -148,21 +114,7 @@ if choice == 1
     cprintf('Text', '\t  2) NO \n');
     cprintf('Text', '\n');
 
-    while true
-        inputString = input('Selection-> ', 's');
-        try
-            save = str2double(inputString);
-        catch
-            cprintf('Text','Invalid choice. Try again... \n');
-            continue;
-        end
-        if isfinite(save) && save > 0 && save < 3 && save == round(save)
-            save = round(save);
-            break;
-        else
-            cprintf('Text','Invalid choice. Try again... \n');
-        end
-    end
+    save = validateInput(2);
     cprintf('Text', '======================================================================= \n');
     
     switch whichCalculate
@@ -198,4 +150,63 @@ if choice == 1
             if save == 1, flagsStruct.arrayAll.save = true; end
     end
 
+    if elementsOrder == 2
+        meshdata = mphxmeshinfo(model);
+        meshdataTypeList = string(meshdata.meshtypes);
+        assignin('base', 'meshdataTypeList', meshdataTypeList);
+    else
+        [~,meshdata] = mphmeshstats(model, selectedMeshTag);
+        meshdataTypeList = string(meshdata.types);
+        assignin('base', 'meshdataTypeList', meshdataTypeList);
+    end
+    
+    possibleMeshElementTypes = ["tet"; "pyr"; "prism"; "hex"];
+    containedElementTypes = meshdataTypeList(ismember(meshdataTypeList, possibleMeshElementTypes));
+    for i = 1 : size(containedElementTypes,1)
+        searchedString = containedElementTypes(i,1);
+        if strcmp(searchedString, "tet")
+            incidenceMatricesTet = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder);
+            variablesToPreserve = "incidenceMatricesTet";
+        elseif strcmp(searchedString, "pyr")
+            incidenceMatricesPyr = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder);
+            variablesToPreserve = "incidenceMatricesPyr";
+        elseif strcmp(searchedString, "prism")
+            incidenceMatricesPrism = createIncidenceMatricesForCLI(model,...
+                                                                   selectedComponentGeometryTag,...
+                                                                   geometryTagPos,...
+                                                                   meshdata,...
+                                                                   meshdataTypeList,...
+                                                                   searchedString,...
+                                                                   elementsOrder);
+            variablesToPreserve = "incidenceMatricesPrism";
+        elseif strcmp(searchedString, "hex")
+            incidenceMatricesHex = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder);
+            variablesToPreserve = "incidenceMatricesHex";
+        end
+    end
+    
+
 end
+
+% Pulisco il workspace dalle variabili inutili
+variablesToPreserve = [variablesToPreserve, "meshdataTypeList", "model"];
+command = ['clearvars -except', sprintf(' %s', variablesToPreserve(:))];
+eval(command);

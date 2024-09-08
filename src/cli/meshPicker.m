@@ -19,22 +19,8 @@ function [selectedMesh, selectedMeshTag] = meshPicker(model, selectedComponent)
         cprintf('Text', '\t %s) %s \n', string(i), labelTagArray(i,1));
     end
     cprintf('Text', '\n');
-    
-     while true
-         inputString = input('Selection-> ', 's');
-         try
-             choice = str2double(inputString);
-         catch
-             cprintf('Text','Invalid choice. Try again... \n');
-             continue;
-         end
-         if isfinite(choice) && choice > 0 && choice < size(labelTagArray, 1) && choice == round(choice)
-             choice = round(choice);
-             break;
-         else
-             cprintf('Text','Invalid choice. Try again... \n');
-         end
-     end
+
+    choice = validateInput(size(labelTagArray, 1));
     
     searchedString = labelTagArray(choice,1);
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);

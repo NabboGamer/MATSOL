@@ -4,8 +4,8 @@ function createIncidenceMatrices
     import com.comsol.model.*
     import com.comsol.model.util.*
 
-    addpath('./polyhedra_types/polyhedra_with_all_faces_equal');
-    addpath('./polyhedra_types/polyhedra_with_different_faces');
+    addpath('./incidence_matrices/polyhedra_types/polyhedra_with_all_faces_equal');
+    addpath('./incidence_matrices/polyhedra_types/polyhedra_with_different_faces');
     addpath('./utility');
     
     evalin('base', 'clear'), close all; clc;
