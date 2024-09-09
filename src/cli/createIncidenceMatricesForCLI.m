@@ -216,10 +216,10 @@ function incidenceMatrices = createIncidenceMatricesForCLI(model, selectedCompon
         fprintf("Start generation of DOMAINS-ELEMENTS incidence matrix...\n");
         tic;
         if elementsOrder == 2
-            cprintf('Keywords', '***INFO: Unfortunately, the livelink does not \n');
-            cprintf('Keywords', '         currently provide information about the \n');
-            cprintf('Keywords', '         domain of membership for second-order elements, \n');
-            cprintf('Keywords', '         so this matrix cannot be generated. \n');
+            cprintf('Keywords', 'Unfortunately, the livelink does not \n');
+            cprintf('Keywords', 'currently provide information about the \n');
+            cprintf('Keywords', 'domain of membership for second-order elements, \n');
+            cprintf('Keywords', 'so this matrix cannot be generated. \n');
             tempo_esecuzione = toc;
             fprintf("Generation interrupted after %f sec!\n", tempo_esecuzione);
         else

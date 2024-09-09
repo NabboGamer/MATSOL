@@ -51,7 +51,7 @@ function [model] = modelPicker()
         model = mphload(completePath);
         [msg, ~] = lastwarn;
         if ~isempty(msg)
-            cprintf('SystemCommands', '***WARNING: The file is read-only \n');
+            cprintf('SystemCommands', 'The file is read-only \n');
             lastwarn('');
         end
         warning(oldWarnState);

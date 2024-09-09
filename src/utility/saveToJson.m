@@ -7,8 +7,8 @@ function saveToJson(incidenceMatrices, fileName)
     
     % Verifico se il file esiste già
     if exist(fileName, 'file')
-        cprintf('SystemCommands', '***WARNING: File %s \n', fileName);
-        cprintf('SystemCommands', '            already exists, a new file will be created \n');
+        cprintf('SystemCommands', 'File %s \n', fileName);
+        cprintf('SystemCommands', 'already exists, a new file will be created \n');
         [~, name, ext] = fileparts(fileName);
         timestamp = datetime('now', 'Format', 'dd-MM-yyyy_HH-mm');
         fileName = ["../saved_matrices/", string(name), "_", string(timestamp), string(ext)];
