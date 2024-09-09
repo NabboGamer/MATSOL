@@ -2,9 +2,8 @@ function [selectedMesh, selectedMeshTag] = meshPicker(model, selectedComponent)
     selectedComponentMeshList = selectedComponent.mesh();
     selectedComponentMeshTagList = string(selectedComponentMeshList.tags);
     if isempty(selectedComponentMeshTagList)
-            cprintf('Errors', 'The component does not yet have any mesh, application will terminate! \n');
-            cprintf('Text', '======================================================================= \n');
-            return;
+        selectedMesh = -1;
+        return;
     end
     
     labelTagArray = strings(size(selectedComponentMeshTagList, 1), 2);

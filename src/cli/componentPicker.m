@@ -2,8 +2,7 @@ function selectedComponent = componentPicker(model)
     modelComponentList = model.component();
     modelComponentTagList = string(modelComponentList.tags);
     if isempty(modelComponentTagList)
-        cprintf('Errors', 'The model does not yet have any components, application will terminate! \n');
-        cprintf('Text', '======================================================================= \n');
+        selectedComponent = -1;
         return;
     end
     

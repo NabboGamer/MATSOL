@@ -33,14 +33,19 @@ function incidenceMatrices = createIncidenceMatricesForCLI(model, selectedCompon
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
     if elementsOrder == 2
-        if strcmp(searchedString, 'tet')
-            elements = double(meshdata.elements(geometryTagPos).tet.nodes+1);
-        elseif strcmp(searchedString, 'pyr') 
-            elements = double(meshdata.elements(geometryTagPos).pyr.nodes+1);
-        elseif strcmp(searchedString, 'prism')
-            elements = double(meshdata.elements(geometryTagPos).prism.nodes+1);
-        elseif strcmp(searchedString, 'hex')
-            elements = double(meshdata.elements(geometryTagPos).hex.nodes+1);
+        try
+            if strcmp(searchedString, 'tet')
+                elements = double(meshdata.elements(geometryTagPos).tet.nodes+1);
+            elseif strcmp(searchedString, 'pyr') 
+                elements = double(meshdata.elements(geometryTagPos).pyr.nodes+1);
+            elseif strcmp(searchedString, 'prism')
+                elements = double(meshdata.elements(geometryTagPos).prism.nodes+1);
+            elseif strcmp(searchedString, 'hex')
+                elements = double(meshdata.elements(geometryTagPos).hex.nodes+1);
+            end
+        catch
+            incidenceMatrices = struct();
+            return;
         end
     else
         elements = double(meshdata.elem{meshdataTypePos}+1);

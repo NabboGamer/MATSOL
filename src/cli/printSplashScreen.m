@@ -7,7 +7,8 @@ function printSplashScreen()
     
     % Controlla se il file è stato aperto correttamente
     if fileID == -1
-        cprintf('Errors','***ERROR: non è stato possibile aprire il file banner.txt per procedere con la lettura \n');
+        cprintf('Errors','Non è stato possibile aprire il file banner.txt per procedere con la lettura \n');
+        return;
     end
     
     % Leggi il file riga per riga

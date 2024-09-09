@@ -17,6 +17,7 @@ if isConnected
 else
     cprintf('Errors', 'Unable to connect to COMSOL Server, application will terminate! \n');
     cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
     return;
 end
 
@@ -29,6 +30,7 @@ ModelUtil.clear();
 cprintf('Text', 'Please select a COMSOL model to load... \n');
 model = modelPicker();
 if model == -1
+    evalin('base', 'clear');
     return;
 else
     cprintf('Text', 'Model loading completed successfully! \n');
@@ -37,33 +39,55 @@ end
 
 %% Estrazione del componente di interesse
 selectedComponent = componentPicker(model);
-cprintf('Text', '\n');
-cprintf('Text', 'Component successfully selected! \n');
-cprintf('Text', '======================================================================= \n');
+if selectedComponent == -1
+    cprintf('Text', '\n');
+    cprintf('Errors', 'The model does not yet have any components, application will terminate! \n');
+    cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
+    return;
+else
+    cprintf('Text', '\n');
+    cprintf('Text', 'Component successfully selected! \n');
+    cprintf('Text', '======================================================================= \n');
+end
 
 %% Estrazione della mesh e della geometria di interesse
 [selectedMesh, selectedMeshTag] = meshPicker(model, selectedComponent);
-cprintf('Text', '\n');
-cprintf('Text', 'Mesh successfully selected! \n');
-cprintf('Text', '======================================================================= \n');
+if selectedMesh == -1
+    cprintf('Text', '\n');
+    cprintf('Errors', 'The component does not yet have any mesh, application will terminate! \n');
+    cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
+    return;
+else
+    cprintf('Text', '\n');
+    cprintf('Text', 'Mesh successfully selected! \n');
+    cprintf('Text', '======================================================================= \n');
+end
 selectedComponentGeometry = selectedComponent.geom;
 selectedComponentGeometryTag = string(selectedComponentGeometry.tags());
 
 %% Estrazione del numero di ordine degli elementi
 cprintf('Text', 'Please wait while the mesh element order number is evaluated... \n');
 elementsOrder = evaluateOrderNumber(model);
-cprintf('Text', 'Evaluation completed! \n');
+if elementsOrder == -1
+    cprintf('Errors', 'Non-existent shape functions, assign a physics to the component! \n');
+    cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
+    return;
+end
 
 modelSolutionTags = string(model.sol.tags());
 if elementsOrder > 1 && isempty(modelSolutionTags)
-    % TODO: Controllare che la soluzione calcolata sia basat sul componente selezionato
     cprintf('Text', '\n');
     cprintf('Errors', 'Non-existent solutions, compute a solution of the model (even with mock data) \n');
     cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
     return;
-else
-    cprintf('Text', '======================================================================= \n');
 end
+
+cprintf('Text', 'Evaluation completed! \n');
+cprintf('Text', '======================================================================= \n');
 
 if elementsOrder == 2
     geometryTagList = string(model.geom.tags());
@@ -177,6 +201,13 @@ if choice == 1
                                                                  flagsStruct,...
                                                                  '../saved_matrices/incidenceMatricesTet.json',...
                                                                  true);
+            if isempty(fieldnames(incidenceMatricesTet))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
             variablesToPreserve = [variablesToPreserve, "incidenceMatricesTet"]; %#ok<AGROW>
         elseif strcmp(searchedString, "pyr")
             incidenceMatricesPyr = createIncidenceMatricesForCLI(model,...
@@ -189,6 +220,13 @@ if choice == 1
                                                                  flagsStruct,...
                                                                  '../saved_matrices/incidenceMatricesPyr.json',...
                                                                  false);
+            if isempty(fieldnames(incidenceMatricesPyr))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
             variablesToPreserve = [variablesToPreserve, "incidenceMatricesPyr"]; %#ok<AGROW>
         elseif strcmp(searchedString, "prism")
             incidenceMatricesPrism = createIncidenceMatricesForCLI(model,...
@@ -201,6 +239,13 @@ if choice == 1
                                                                    flagsStruct,...
                                                                    '../saved_matrices/incidenceMatricesPrism.json',...
                                                                    false);
+            if isempty(fieldnames(incidenceMatricesPrism))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
             variablesToPreserve = [variablesToPreserve, "incidenceMatricesPrism"]; %#ok<AGROW>
         elseif strcmp(searchedString, "hex")
             incidenceMatricesHex = createIncidenceMatricesForCLI(model,...
@@ -213,6 +258,13 @@ if choice == 1
                                                                  flagsStruct,...
                                                                  '../saved_matrices/incidenceMatricesHex.json',...
                                                                  true);
+            if isempty(fieldnames(incidenceMatricesHex))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
             variablesToPreserve = [variablesToPreserve, "incidenceMatricesHex"]; %#ok<AGROW>
         end
     end

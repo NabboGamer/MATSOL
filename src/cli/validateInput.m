@@ -1,4 +1,5 @@
 function choice = validateInput(maxNumberOfChoice)
+
     while true
         inputString = input('Selection-> ', 's');
         try
@@ -14,5 +15,6 @@ function choice = validateInput(maxNumberOfChoice)
             cprintf('Text','Invalid choice. Try again... \n');
         end
     end
+    
 end
 
