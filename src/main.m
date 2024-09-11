@@ -67,6 +67,52 @@ end
 selectedComponentGeometry = selectedComponent.geom;
 selectedComponentGeometryTag = string(selectedComponentGeometry.tags());
 
+%% Estrazione dello studio di interesse
+[selectedStudy, selectedStudyTag] = studyPicker(model);
+if selectedStudy == -1
+    cprintf('Errors', 'Non-existent studies, assign a study to the model! \n');
+    cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
+    return;
+else
+    cprintf('Text', '\n');
+    cprintf('Text', 'Study successfully selected! \n');
+    cprintf('Text', '======================================================================= \n');
+end
+
+%% Estrazione dello step di interesse
+[selectedStep, selectedStepTag] = stepPicker(selectedStudy);
+if selectedStep == -1
+    cprintf('Errors', 'Non-existent step, assign a step to the study! \n');
+    cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
+    return;
+else
+    cprintf('Text', '\n');
+    cprintf('Text', 'Step successfully selected! \n');
+    cprintf('Text', '======================================================================= \n');
+end
+
+meshCalculatedSolution = string(selectedStep.getStringArray('mesh'));
+positionSelectedMeshTag = find(strcmp(meshCalculatedSolution, selectedComponentGeometryTag));
+nextPosition = positionSelectedMeshTag + 1;
+result1 = strcmp(meshCalculatedSolution(nextPosition), "nomesh");
+if result1
+    cprintf('Errors', 'For the selected component, in the selected step you \n');
+    cprintf('Errors', 'have not inserted any mesh! \n');
+    cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
+    return;
+end
+result2 = strcmp(meshCalculatedSolution(nextPosition), selectedMeshTag);
+if ~result2
+    cprintf('Errors', 'For the selected component, in the selected step you have assigned \n');
+    cprintf('Errors', 'a different mesh from the one inserted previously \n');
+    cprintf('Text', '======================================================================= \n');
+    evalin('base', 'clear');
+    return;
+end
+
 %% Estrazione del numero di ordine degli elementi
 cprintf('Text', 'Please wait while the mesh element order number is evaluated... \n');
 elementsOrder = evaluateOrderNumber(model);
@@ -84,6 +130,19 @@ if elementsOrder > 1 && isempty(modelSolutionTags)
     cprintf('Text', '======================================================================= \n');
     evalin('base', 'clear');
     return;
+end
+
+for i = 1 : size(modelSolutionTags, 1)
+    solutionTag = modelSolutionTags(i, 1);
+    if (model.sol(solutionTag).isActive() &&...
+       ~strcmp(string(model.sol(solutionTag).study()), selectedStudyTag))
+        cprintf('Text', '\n');
+        cprintf('Errors', 'The current active solution is attached to a different \n');
+        cprintf('Errors', 'study than the one selected \n');
+        cprintf('Text', '======================================================================= \n');
+        evalin('base', 'clear');
+        return;
+    end
 end
 
 cprintf('Text', 'Evaluation completed! \n');

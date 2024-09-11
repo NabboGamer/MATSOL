@@ -3,6 +3,7 @@ function [selectedMesh, selectedMeshTag] = meshPicker(model, selectedComponent)
     selectedComponentMeshTagList = string(selectedComponentMeshList.tags);
     if isempty(selectedComponentMeshTagList)
         selectedMesh = -1;
+        selectedMeshTag = -1;
         return;
     end
     
