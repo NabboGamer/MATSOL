@@ -160,9 +160,10 @@ cprintf('Text', '\n');
 cprintf('Text', '\t 1) Incidence Matrices \n');
 cprintf('Text', '\t 2) Shape Functions \n');
 cprintf('Text', '\t 3) Jacobian Matrices \n');
+cprintf('Text', '\t 4) Transformation Matrices \n');
 cprintf('Text', '\n');
 
-choice = validateInput(3);
+choice = validateInput(4);
 cprintf('Text', '======================================================================= \n');
 
 fields = {'arrayNodesFaces', 'arrayNodesBoundaryFaces', ...
@@ -483,7 +484,7 @@ elseif choice == 3
             end
             tableShapeFunctionsTet = createShapeFunctions(incidenceMatricesTet, searchedString, elementsOrder);
             tableJacobianMatricesTet = createJacobianMatrices(incidenceMatricesTet, tableShapeFunctionsTet);
-            variablesToPreserve = [variablesToPreserve, "tableJacobianMatricesTet", "tableShapeFunctionsTet"]; %#ok<AGROW>
+            variablesToPreserve = [variablesToPreserve, "tableJacobianMatricesTet"]; %#ok<AGROW>
         elseif strcmp(searchedString, "pyr")
             incidenceMatricesPyr = createIncidenceMatricesForCLI(model,...
                                                                  selectedComponentGeometryTag,...
@@ -547,6 +548,123 @@ elseif choice == 3
             tableShapeFunctionsHex = createShapeFunctions(incidenceMatricesHex, searchedString, elementsOrder);
             tableJacobianMatricesHex = createJacobianMatrices(incidenceMatricesHex, tableShapeFunctionsHex);
             variablesToPreserve = [variablesToPreserve, "tableJacobianMatricesHex"]; %#ok<AGROW>
+        end
+    end
+    cprintf('Text', '\n');
+    cprintf('Text', 'Generation completed!  \n');
+    cprintf('Text', '======================================================================= \n');
+    
+elseif choice == 4
+    %% Generazione Matrici di Trasformazione
+    cprintf('Text', 'Please wait while the Transformation Matrices are generated...  \n');
+    cprintf('Text', '\n');
+    cprintf('Keywords', 'Note, to generate the Transformation Matrices is\n');
+    cprintf('Keywords', 'necessary to generate some incidence matrices... \n');
+    cprintf('Text', '======================================================================= \n');
+    flagsStruct.arrayNodesFaces.calculate = true;
+    if elementsOrder == 2
+        meshdata = mphxmeshinfo(model);
+        meshdataTypeList = string(meshdata.meshtypes);
+        assignin('base', 'meshdataTypeList', meshdataTypeList);
+    else
+        [~,meshdata] = mphmeshstats(model, selectedMeshTag);
+        meshdataTypeList = string(meshdata.types);
+        assignin('base', 'meshdataTypeList', meshdataTypeList);
+    end
+
+    possibleMeshElementTypes = ["tet"; "pyr"; "prism"; "hex"];
+    containedElementTypes = meshdataTypeList(ismember(meshdataTypeList, possibleMeshElementTypes));
+    variablesToPreserve = ["meshdataTypeList", "model"];
+    for i = 1 : size(containedElementTypes,1)
+        searchedString = containedElementTypes(i,1);
+        if strcmp(searchedString, "tet")
+            incidenceMatricesTet = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder,...
+                                                                 flagsStruct,...
+                                                                 '../saved_matrices/incidenceMatricesTet.json',...
+                                                                 true);
+            if isempty(fieldnames(incidenceMatricesTet))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsTet = createShapeFunctions(incidenceMatricesTet, searchedString, elementsOrder);
+            tableJacobianMatricesTet = createJacobianMatrices(incidenceMatricesTet, tableShapeFunctionsTet);
+            tableTransformationMatricesTet = createTransformationMatrices(incidenceMatricesTet, tableJacobianMatricesTet);
+            variablesToPreserve = [variablesToPreserve, "tableTransformationMatricesTet"]; %#ok<AGROW>
+        elseif strcmp(searchedString, "pyr")
+            incidenceMatricesPyr = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder,...
+                                                                 flagsStruct,...
+                                                                 '../saved_matrices/incidenceMatricesPyr.json',...
+                                                                 false);
+            if isempty(fieldnames(incidenceMatricesPyr))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsPyr = createShapeFunctions(incidenceMatricesPyr, searchedString, elementsOrder);
+            tableJacobianMatricesPyr = createJacobianMatrices(incidenceMatricesPyr, tableShapeFunctionsPyr);
+            tableTransformationMatricesPyr = createTransformationMatrices(incidenceMatricesPyr, tableJacobianMatricesPyr);
+            variablesToPreserve = [variablesToPreserve, "tableTransformationMatricesPyr"]; %#ok<AGROW>
+        elseif strcmp(searchedString, "prism")
+            incidenceMatricesPrism = createIncidenceMatricesForCLI(model,...
+                                                                   selectedComponentGeometryTag,...
+                                                                   geometryTagPos,...
+                                                                   meshdata,...
+                                                                   meshdataTypeList,...
+                                                                   searchedString,...
+                                                                   elementsOrder,...
+                                                                   flagsStruct,...
+                                                                   '../saved_matrices/incidenceMatricesPrism.json',...
+                                                                   false);
+            if isempty(fieldnames(incidenceMatricesPrism))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsPrism = createShapeFunctions(incidenceMatricesPrism, searchedString, elementsOrder);
+            tableJacobianMatricesPrism = createJacobianMatrices(incidenceMatricesPrism, tableShapeFunctionsPrism);
+            tableTransformationMatricesPrism = createTransformationMatrices(incidenceMatricesPrism, tableJacobianMatricesPrism);
+            variablesToPreserve = [variablesToPreserve, "tableTransformationMatricesPrism"]; %#ok<AGROW>
+        elseif strcmp(searchedString, "hex")
+            incidenceMatricesHex = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder,...
+                                                                 flagsStruct,...
+                                                                 '../saved_matrices/incidenceMatricesHex.json',...
+                                                                 true);
+            if isempty(fieldnames(incidenceMatricesHex))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsHex = createShapeFunctions(incidenceMatricesHex, searchedString, elementsOrder);
+            tableJacobianMatricesHex = createJacobianMatrices(incidenceMatricesHex, tableShapeFunctionsHex);
+            tableTransformationMatricesHex = createTransformationMatrices(incidenceMatricesHex, tableJacobianMatricesHex);
+            variablesToPreserve = [variablesToPreserve, "tableTransformationMatricesHex"]; %#ok<AGROW>
         end
     end
     cprintf('Text', '\n');

@@ -45,19 +45,18 @@ function transformationMatrices = createTransformationMatrices(incidenceMatrices
     % Calcolo la matrice di trasformazione
     transformation_matrices = cell(size(mesh_elements,1),1);
 
-    JacobianInfo = table2array(tableJacobian);
-
-    Jacobian = JacobianInfo(:,1);
+    Jacobian = table2array(tableJacobian(:, 1));
 
     for i = 1 : numElements
         refCoord = [coord_mesh{i}(1,1) coord_mesh{i}(1,2) coord_mesh{i}(1,3)];
-        T = [Jacobian{i}, refCoord'; 0 0 0 1];
+        T = [table2array(Jacobian{i, 1}), refCoord'; 0 0 0 1];
         T = round(T,10);
         transformation_matrices{i} = T;
     end
     
-    nodeLabels = strcat('e_', string(1:size(coord_mesh_table, 2)));
-    transformationMatrices = cell2table(transformation_matrices','VariableNames', nodeLabels, "RowNames","transformation Matrices");
+    coord_mesh = coord_mesh';
+    nodeLabels = strcat('e_', string(1:size(coord_mesh, 2)));
+    transformationMatrices = cell2table(transformation_matrices','VariableNames', nodeLabels, "RowNames","Trans Matr");
     
     %Per effettuare la trasformazione di coordinate bisogna passare alle
     %rappresentazioni omogenee (aggiunta di una riga/colonna (dipende dalla rappresentazione utilizzata,
