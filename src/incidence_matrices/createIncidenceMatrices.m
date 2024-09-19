@@ -4,9 +4,9 @@ function createIncidenceMatrices
     import com.comsol.model.*
     import com.comsol.model.util.*
 
-    addpath('./incidence_matrices/polyhedra_types/polyhedra_with_all_faces_equal');
-    addpath('./incidence_matrices/polyhedra_types/polyhedra_with_different_faces');
-    addpath('./utility');
+    addpath('../incidence_matrices/polyhedra_types/polyhedra_with_all_faces_equal');
+    addpath('../incidence_matrices/polyhedra_types/polyhedra_with_different_faces');
+    addpath('../utility');
     
     evalin('base', 'clear'), close all; clc;
     ModelUtil.clear();
@@ -17,7 +17,7 @@ function createIncidenceMatrices
     oldWarnState = warning('query', 'all');
     warning('off', 'all');
     lastwarn('');
-    model = mphload('C:\Users\stolf\dev\Progetto Modelli Numerici per Campi e Circuiti\MATSOL\model\component_library_RF.mph');
+    model = mphload('C:\Users\tancr\Desktop\Progetto MNCC\MATSOL\model\component_library_RF.mph');
     [msg, ~] = lastwarn;
     if ~isempty(msg)
         cprintf('SystemCommands', '***WARNING: %s\n', msg);
@@ -58,7 +58,7 @@ function createIncidenceMatrices
         labelTagArray(i,1) = model.mesh(selectedComponentMeshTagList(i)).label();
     end
     labelTagArray(:,2) = selectedComponentMeshTagList(:);
-    searchedString = 'meshHex3';
+    searchedString = 'meshTet';
     selectedMeshTagPos = strcmp(labelTagArray(:, 1), searchedString);
     if ~any(selectedMeshTagPos)
         cprintf('Errors', '***ERROR: non esiste nessuna mesh con questa LABEL, assicurati che la label coincida e che tu non abbia inserito per errore il TAG della mesh \n');
@@ -163,7 +163,7 @@ function createIncidenceMatrices
     % MATRICE NODI-ELEMENTI
     fprintf("Inizio generazione matrice di incidenza NODI-ELEMENTI...\n");
     tic;
-    searchedString = 'hex';
+    searchedString = 'tet';
     meshdataTypePos = strcmp(meshdataTypeList, searchedString);
     %N.B.: Come da documentazione gli elementi sono indicizzati da 0 quindi
     %      bisogna aggiungere 1
