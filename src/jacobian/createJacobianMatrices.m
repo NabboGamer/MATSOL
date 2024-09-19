@@ -1,6 +1,5 @@
-function [tableJacobian] = createJacobian(incidenceMatrices,tableShapeFunctions)
-    %CREATEJACOBIAN calcola la matrice jacobiana, il suo determinante e
-    %l'inversa della jacobiana con relativo determinante
+function tableJacobianMatrices = createJacobianMatrices(incidenceMatrices, tableShapeFunctions)
+    %CREATEJACOBIAN si occupa di calcolare la matrice Jacobiana, il suo determinante e l'inversa della Jacobiana con relativo determinante
     
     % Tabella mesh-nodi
     mesh_elements = incidenceMatrices.arrayNodesElements;
@@ -43,21 +42,22 @@ function [tableJacobian] = createJacobian(incidenceMatrices,tableShapeFunctions)
         coord_element(:,:) = [];
     end
 
-    shapeFunctions = table2array(tableShapeFunctions);
-    
+    stringShapeFunctions = table2array(tableShapeFunctions);
+    shapeFunctions = sym(zeros(size(stringShapeFunctions)));
     for i = 1 : size(shapeFunctions,1)
-        shapeFunctions(i) = evalin(symengine,shapeFunctions(i));
+        shapeFunctions(i) = str2sym(stringShapeFunctions(i));
     end
 
     dN_dxi = sym(zeros(1,numNodes));
     dN_deta = sym(zeros(1,numNodes));
     dN_dzeta = sym(zeros(1,numNodes));
 
+    syms xi eta zeta
     % Calcolo le derivate per costruire la jacobiana
-    for i = 1:size(shapeFunctions)
+    for i = 1:size(shapeFunctions, 1)
         dN_dxi(1,i) = diff(shapeFunctions(i),xi);
-        dN_deta(1,i) = diff(shapeFunction(i),eta);
-        dN_dzeta(1,i) = diff(shapeFunction(i),zeta);
+        dN_deta(1,i) = diff(shapeFunctions(i),eta);
+        dN_dzeta(1,i) = diff(shapeFunctions(i),zeta);
     end
 
     % Definisco le coordinate locali
@@ -73,7 +73,7 @@ function [tableJacobian] = createJacobian(incidenceMatrices,tableShapeFunctions)
     %Calcolo delle derivate globali (matrice Jacobiana)  
     Jacobian = cell(numElements,1);
     Jacobian_info = cell (numElements,1);
-    tableJacobian = table();
+    tableJacobianMatrices = table();
     
     for i = 1 : numElements
         X = coord_mesh{i}(:,1);
@@ -94,17 +94,18 @@ function [tableJacobian] = createJacobian(incidenceMatrices,tableShapeFunctions)
         J(3, 3) = sum(dN_dzeta * Z);
 
         det_J = det(J);
-        inv_J = inv(J);
+        inv_J = pinv(J);
         det_inv = det(inv_J);
 
         Jacobian{i} = J;
         Jacobian_info{i} = {array2table(J), det_J, array2table(inv_J), det_inv};
-        variableNames = {'Jacobiana', 'Determinante', 'Inversa', 'Determinante inversa'};
-        tableJacobian(i,:) = cell2table(Jacobian_info{i},'VariableNames', variableNames);
+        variableNames = {'Jacobian', 'Determinant of the Jacobian', 'Inverse of the Jacobian', 'Determinant of the Inverse of the Jacobian'};
+        tableJacobianMatrices(i,:) = cell2table(Jacobian_info{i},'VariableNames', variableNames);
     end
     
-    nodeLabels = strcat('e_', string(1:size(coord_mesh_table, 2)));
-    tableJacobian.Properties.RowNames = nodeLabels;
+    coord_mesh = coord_mesh';
+    nodeLabels = strcat('e_', string(1:size(coord_mesh, 2)));
+    tableJacobianMatrices.Properties.RowNames = nodeLabels;
 
 end
 
