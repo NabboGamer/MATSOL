@@ -70,7 +70,7 @@ function createAll
     
     masterElement = [];
     
-    searchedString = "tet";
+    searchedString = "pyr";
 
     if searchedString == "hex"
 
@@ -82,32 +82,12 @@ function createAll
         N = @(xi_i, eta_i, zeta_i)(...
             (((1-xi)^(1-xi_i)) * xi^xi_i) * (((1-eta)^(1-eta_i)) * eta^eta_i) * (((1-zeta)^(1-zeta_i)) * zeta^zeta_i));
 
-        for i = 1:numNodes
-            xi_i = masterElement(i,1);
-            eta_i = masterElement(i,2);
-            zeta_i = masterElement(i,3);
-    
-            shapeFunction{i} = N(xi_i, eta_i, zeta_i);
-        end
-
     elseif searchedString == "tet"
         masterElement = [0 0 0; 1 0 0; 0 1 0; 0 0 1];
 
-        % Matrice A e vettore b definiti per l'elemento tetraedrico lineare
-        A = [-1, -1, -1;
-              1,  0,  0;
-              0,  1,  0;
-              0,  0,  1];
-
-        b = [1; 0; 0; 0];
-
-        % Calcolo delle funzioni di forma
         syms xi eta zeta
-        N = A * [xi; eta; zeta] + b;
-
-        for i = 1:numNodes
-            shapeFunction{i} = N(i);
-        end
+        N = @(xi_i, eta_i, zeta_i)(...
+            (1-xi-eta-zeta)+xi_i*(2*xi+eta+zeta-1)+eta_i*(xi+2*eta+zeta-1)+zeta_i*(xi+eta+2*zeta-1));
 
     elseif searchedString == "prism"
         masterElement = [0 0 0; 1 0 0; 0 1 0; 0 0 1; 1 0 1; 0 1 1];
@@ -116,32 +96,22 @@ function createAll
         syms xi eta zeta
         N = @(xi_i, eta_i, zeta_i)(...
             ((1-xi-eta)^(1-xi_i-eta_i))*(xi^xi_i)*(eta^eta_i)*((1-zeta)^(1-zeta_i))*(zeta^zeta_i));
-        
-        for i = 1:numNodes
-            xi_i = masterElement(i,1);
-            eta_i = masterElement(i,2);
-            zeta_i = masterElement(i,3);
-    
-            shapeFunction{i} = N(xi_i, eta_i, zeta_i);
-        end
 
     elseif searchedString == "pyr"
         masterElement = [0 0 0; 1 0 0; 0 1 0; 1 1 0; 0.5 0.5 1];
 
-        % Funzioni di forma piramidali lineari
-        % Input:
-        %   xi, eta, zeta - Coordinate naturali (xi, eta, zeta) in [0, 1]
-        % Output:
-        %   N - Funzioni di forma per i 5 nodi dell'elemento piramidale
-    
-        % Funzioni di forma per i nodi della base
         syms xi eta zeta
-        shapeFunction{1} = (1-xi)*(1-eta)*(1-zeta);
-        shapeFunction{2} = xi*(1-eta)*(1-zeta);
-        shapeFunction{3} = (1-xi)*eta*(1-zeta);
-        shapeFunction{4} = xi*eta*(1-zeta);
-        shapeFunction{5} = zeta;
+        N = @(xi_i, eta_i, zeta_i)(...
+             ((1-xi)^(1-xi_i)*xi^xi_i*(1-eta)^(1-eta_i)*eta^eta_i*(1-zeta)*(1-zeta_i)) + (zeta*zeta_i));
 
+    end
+
+    for i = 1:numNodes
+        xi_i = masterElement(i,1);
+        eta_i = masterElement(i,2);
+        zeta_i = masterElement(i,3);
+
+        shapeFunction{i} = N(xi_i, eta_i, zeta_i);
     end
 
     dN_dxi = sym(zeros(1,numNodes));
