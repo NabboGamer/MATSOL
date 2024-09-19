@@ -1,18 +1,5 @@
-function tableShapeFunctions = createShapeFunctions(model, selectedComponentGeometryTag, geometryTagPos, meshdata, meshdataTypeList, elementsType, elementsOrder, flagsStruct)
+function tableShapeFunctions = createShapeFunctions(incidenceMatrices, elementsType, elementsOrder)
     %CREATESHAPEFUNCTIONS si occupa di fornire le funzioni di forma nodali per l'elemento di interesse 
-    
-    flagsStruct.arrayNodesFaces.calculate = true;
-
-    incidenceMatrices = createIncidenceMatricesForCLI(model,...
-                                                      selectedComponentGeometryTag,...
-                                                      geometryTagPos,...
-                                                      meshdata,...
-                                                      meshdataTypeList,...
-                                                      elementsType,...
-                                                      elementsOrder,...
-                                                      flagsStruct,...
-                                                      '../../saved_matrices/incidenceMatricesPyr.json',...
-                                                      false);
     
     % Tabella mesh-nodi
     mesh_elements = incidenceMatrices.arrayNodesElements;
@@ -25,33 +12,33 @@ function tableShapeFunctions = createShapeFunctions(model, selectedComponentGeom
 
     if elementsOrder == 1
 
-        if elementsType == "hex"
-
+        if strcmp(elementsType, "hex")
+        
             % Definizione delle coordinate locali (dell'elemento master)
             masterElement = [ 0 0 0; 1 0 0; 0 1 0; 1 1 0; 0 0 1; 1 0 1; 0 1 1; 1 1 1];
-    
+            
             % Calcolo le funzioni di forma per un elemento esaedrico lineare
             syms xi eta zeta
             N = @(xi_i, eta_i, zeta_i)(...
-                (((1-xi)^(1-xi_i)) * xi^xi_i) * (((1-eta)^(1-eta_i)) * eta^eta_i) * (((1-zeta)^(1-zeta_i)) * zeta^zeta_i));
+                 (((1-xi)^(1-xi_i)) * xi^xi_i) * (((1-eta)^(1-eta_i)) * eta^eta_i) * (((1-zeta)^(1-zeta_i)) * zeta^zeta_i));
 
-        elseif elementsType == "tet"
+        elseif strcmp(elementsType, "tet")
             masterElement = [0 0 0; 1 0 0; 0 1 0; 0 0 1];
     
             syms xi eta zeta
             N = @(xi_i, eta_i, zeta_i)(...
-                (1-xi-eta-zeta)+xi_i*(2*xi+eta+zeta-1)+eta_i*(xi+2*eta+zeta-1)+zeta_i*(xi+eta+2*zeta-1));
+                 (1-xi-eta-zeta)+xi_i*(2*xi+eta+zeta-1)+eta_i*(xi+2*eta+zeta-1)+zeta_i*(xi+eta+2*zeta-1));
     
-        elseif elementsType == "prism"
+        elseif strcmp(elementsType, "prism")
 
             masterElement = [0 0 0; 1 0 0; 0 1 0; 0 0 1; 1 0 1; 0 1 1];
             
             % Calcolo le funzioni di forma per un elemento esaedrico lineare
             syms xi eta zeta
             N = @(xi_i, eta_i, zeta_i)(...
-                ((1-xi-eta)^(1-xi_i-eta_i))*(xi^xi_i)*(eta^eta_i)*((1-zeta)^(1-zeta_i))*(zeta^zeta_i));
+                 ((1-xi-eta)^(1-xi_i-eta_i))*(xi^xi_i)*(eta^eta_i)*((1-zeta)^(1-zeta_i))*(zeta^zeta_i));
     
-        elseif elementsType == "pyr"
+        elseif strcmp(elementsType, "pyr")
             masterElement = [0 0 0; 1 0 0; 0 1 0; 1 1 0; 0.5 0.5 1];
     
             syms xi eta zeta
@@ -69,9 +56,9 @@ function tableShapeFunctions = createShapeFunctions(model, selectedComponentGeom
         end
 
     else
-        if searchedString == "tet"
-            masterElement = [0 0 0; 0.5 0 0; 1 0 0; 0 0.5 0; 0.5 0.5 0; 0 1 0; 0 0 0.5;...
-                         0.5 0 0.5; 0 0.5 0.5; 0 0 1];
+        if strcmp(elementsType, "tet")
+            % masterElement = [0 0 0; 0.5 0 0; 1 0 0; 0 0.5 0; 0.5 0.5 0; 0 1 0; 0 0 0.5;...
+            %              0.5 0 0.5; 0 0.5 0.5; 0 0 1];
         
             % Funzioni di forma per i nodi della base
             syms xi eta zeta
@@ -87,7 +74,7 @@ function tableShapeFunctions = createShapeFunctions(model, selectedComponentGeom
             shapeFunction{9} = 4*eta*zeta;
             shapeFunction{10} = zeta*((2*zeta)-1);
     
-        elseif searchedString == "hex"
+        elseif strcmp(elementsType, "hex")
            masterElement = [0 0 0; 0.5 0 0; 1 0 0; 0 0.5 0; 0.5 0.5 0; 1 0.5 0; 0 1 0; 0.5 1 0; 1 1 0;...
                        0 0 0.5; 0.5 0 0.5; 1 0 0.5; 0 0.5 0.5; 0.5 0.5 0.5; 1 0.5 0.5; 0 1 0.5; 0.5 1 0.5; 1 1 0.5;...
                        0 0 1; 0.5 0 1; 1 0 1; 0 0.5 1; 0.5 0.5 1; 1 0.5 1; 0 1 1; 0.5 1 1; 1 1 1];
@@ -122,11 +109,11 @@ function tableShapeFunctions = createShapeFunctions(model, selectedComponentGeom
                 shapeFunction{i} = N(xi_i, eta_i, zeta_i);
             end
     
-        elseif searchedString == "prism"
+        elseif strcmp(elementsType, "prism")
 
-            masterElement = [0 0 0; 0.5 0 0; 1 0 0; 0 0.5 0; 0.5 0.5 0; 0 1 0;...
-                             0 0 0.5; 0.5 0 0.5; 1 0 0.5; 0 0.5 0.5; 0.5 0.5 0.5; 0 1 0.5;...
-                             0 0 1; 0.5 0 1; 1 0 1; 0 0.5 1; 0.5 0.5 1; 0 1 1];
+            % masterElement = [0 0 0; 0.5 0 0; 1 0 0; 0 0.5 0; 0.5 0.5 0; 0 1 0;...
+            %                  0 0 0.5; 0.5 0 0.5; 1 0 0.5; 0 0.5 0.5; 0.5 0.5 0.5; 0 1 0.5;...
+            %                  0 0 1; 0.5 0 1; 1 0 1; 0 0.5 1; 0.5 0.5 1; 0 1 1];
             
             % Funzioni di forma per i nodi della base
             syms xi eta zeta
@@ -150,9 +137,9 @@ function tableShapeFunctions = createShapeFunctions(model, selectedComponentGeom
             shapeFunction{17} = 4*xi*eta*(zeta*((2*zeta)-1));
             shapeFunction{18} = eta*((2*eta)-1)*(zeta*((2*zeta)-1));
     
-        elseif searchedString == "pyr"
-            masterElement = [0 0 0; 0.5 0 0; 1 0 0; 0 0.5 0; 0.5 0.5 0; 1 0.5 0; 0 1 0;...
-                             0.5 1 0; 1 1 0; 0.25 0.25 0.5; 0.75 0.25 0.5; 0.25 0.75 0.5; 0.75 0.75 0.5; 0.5 0.5 1];    
+        elseif strcmp(elementsType, "pyr")
+            % masterElement = [0 0 0; 0.5 0 0; 1 0 0; 0 0.5 0; 0.5 0.5 0; 1 0.5 0; 0 1 0;...
+            %                  0.5 1 0; 1 1 0; 0.25 0.25 0.5; 0.75 0.25 0.5; 0.25 0.75 0.5; 0.75 0.75 0.5; 0.5 0.5 1];    
             
              % Funzioni di forma per i nodi della base
             syms xi eta zeta
@@ -175,9 +162,13 @@ function tableShapeFunctions = createShapeFunctions(model, selectedComponentGeom
         end
 
     end
+
+    for i = 1: size(shapeFunction, 1)
+        shapeFunction{i} = string(shapeFunction{i});
+    end
     
     nodeLabels = strcat('n_', string(1:size(shapeFunction,1)));
-    tableShapeFunctions = cell2table(shapeFunctions,'VariableNames', 'shape_fcn','RowNames', nodeLabels);
+    tableShapeFunctions = cell2table(shapeFunction,'RowNames', nodeLabels, 'VariableNames', "shape_fcn");
     
 end
 

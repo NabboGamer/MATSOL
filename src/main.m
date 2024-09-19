@@ -1,6 +1,7 @@
 addpath('./cli');
 addpath('./incidence_matrices/polyhedra_types/polyhedra_with_all_faces_equal');
 addpath('./incidence_matrices/polyhedra_types/polyhedra_with_different_faces');
+addpath('./jacobian');
 addpath('./utility');
 
 evalin('base', 'clear'), close all; clc;
@@ -157,24 +158,25 @@ end
 cprintf('Text', 'Please select the data you want to extract/generate from the model: \n');
 cprintf('Text', '\n');
 cprintf('Text', '\t 1) Incidence Matrices \n');
+cprintf('Text', '\t 2) Shape Functions \n');
 cprintf('Text', '\n');
 
-choice = validateInput(1);
+choice = validateInput(2);
 cprintf('Text', '======================================================================= \n');
+
+fields = {'arrayNodesFaces', 'arrayNodesBoundaryFaces', ...
+          'arrayNodesSides', 'arrayFacesElements', 'arraySidesElements', ...
+          'arraySidesFaces', 'arraySidesBoundaryFaces', 'arrayDomainsElements', ...
+          'arrayBoundaryFacesDomainBoundaryFacesElement', 'arrayAll'};
+
+flagsStruct = struct();
+for i = 1:length(fields)
+    internalStruct = struct('calculate', false, 'save', false);
+    flagsStruct.(fields{i}) = internalStruct;
+end
 
 if choice == 1
     %% Creazione delle matrici di incidenza
-    fields = {'arrayNodesFaces', 'arrayNodesBoundaryFaces', ...
-             'arrayNodesSides', 'arrayFacesElements', 'arraySidesElements', ...
-             'arraySidesFaces', 'arraySidesBoundaryFaces', 'arrayDomainsElements', ...
-             'arrayBoundaryFacesDomainBoundaryFacesElement', 'arrayAll'};
-    
-    flagsStruct = struct();
-    
-    for i = 1:length(fields)
-        internalStruct = struct('calculate', false, 'save', false);
-        flagsStruct.(fields{i}) = internalStruct;
-    end
 
     cprintf('Text', 'Please select which matrix you want to extract/generate: \n');
     cprintf('Text', '\n');
@@ -327,6 +329,115 @@ if choice == 1
             variablesToPreserve = [variablesToPreserve, "incidenceMatricesHex"]; %#ok<AGROW>
         end
     end
+    
+elseif choice == 2
+    %% Generazione Shape Functions
+    cprintf('Text', 'Please wait while the Shape Functions are generated...  \n');
+    cprintf('Text', '\n');
+    cprintf('Keywords', 'Note, to generate the Shape Functions is necessary \n');
+    cprintf('Keywords', 'to generate some incidence matrices... \n');
+    cprintf('Text', '======================================================================= \n');
+    flagsStruct.arrayNodesFaces.calculate = true;
+    if elementsOrder == 2
+        meshdata = mphxmeshinfo(model);
+        meshdataTypeList = string(meshdata.meshtypes);
+        assignin('base', 'meshdataTypeList', meshdataTypeList);
+    else
+        [~,meshdata] = mphmeshstats(model, selectedMeshTag);
+        meshdataTypeList = string(meshdata.types);
+        assignin('base', 'meshdataTypeList', meshdataTypeList);
+    end
+
+    possibleMeshElementTypes = ["tet"; "pyr"; "prism"; "hex"];
+    containedElementTypes = meshdataTypeList(ismember(meshdataTypeList, possibleMeshElementTypes));
+    variablesToPreserve = ["meshdataTypeList", "model"];
+    for i = 1 : size(containedElementTypes,1)
+        searchedString = containedElementTypes(i,1);
+        if strcmp(searchedString, "tet")
+            incidenceMatricesTet = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder,...
+                                                                 flagsStruct,...
+                                                                 '../saved_matrices/incidenceMatricesTet.json',...
+                                                                 true);
+            if isempty(fieldnames(incidenceMatricesTet))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsTet = createShapeFunctions(incidenceMatricesTet, searchedString, elementsOrder);
+            variablesToPreserve = [variablesToPreserve, "tableShapeFunctionsTet"]; %#ok<AGROW>
+        elseif strcmp(searchedString, "pyr")
+            incidenceMatricesPyr = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder,...
+                                                                 flagsStruct,...
+                                                                 '../saved_matrices/incidenceMatricesPyr.json',...
+                                                                 false);
+            if isempty(fieldnames(incidenceMatricesPyr))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsPyr = createShapeFunctions(incidenceMatricesPyr, searchedString, elementsOrder);
+            variablesToPreserve = [variablesToPreserve, "tableShapeFunctionsPyr"]; %#ok<AGROW>
+        elseif strcmp(searchedString, "prism")
+            incidenceMatricesPrism = createIncidenceMatricesForCLI(model,...
+                                                                   selectedComponentGeometryTag,...
+                                                                   geometryTagPos,...
+                                                                   meshdata,...
+                                                                   meshdataTypeList,...
+                                                                   searchedString,...
+                                                                   elementsOrder,...
+                                                                   flagsStruct,...
+                                                                   '../saved_matrices/incidenceMatricesPrism.json',...
+                                                                   false);
+            if isempty(fieldnames(incidenceMatricesPrism))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsPrism = createShapeFunctions(incidenceMatricesPrism, searchedString, elementsOrder);
+            variablesToPreserve = [variablesToPreserve, "tableShapeFunctionsPrism"]; %#ok<AGROW>
+        elseif strcmp(searchedString, "hex")
+            incidenceMatricesHex = createIncidenceMatricesForCLI(model,...
+                                                                 selectedComponentGeometryTag,...
+                                                                 geometryTagPos,...
+                                                                 meshdata,...
+                                                                 meshdataTypeList,...
+                                                                 searchedString,...
+                                                                 elementsOrder,...
+                                                                 flagsStruct,...
+                                                                 '../saved_matrices/incidenceMatricesHex.json',...
+                                                                 true);
+            if isempty(fieldnames(incidenceMatricesHex))
+                cprintf('Errors', 'Sorry something went wrong, application will terminate! Are you sure \n');
+                cprintf('Errors', 'you calculated the solution for the previously selected mesh as well? \n');
+                cprintf('Text', '======================================================================= \n');
+                evalin('base', 'clear');
+                return;
+            end
+            tableShapeFunctionsHex = createShapeFunctions(incidenceMatricesHex, searchedString, elementsOrder);
+            variablesToPreserve = [variablesToPreserve, "tableShapeFunctionsHex"]; %#ok<AGROW>
+        end
+    end
+    cprintf('Text', '\n');
+    cprintf('Text', 'Generation completed!  \n');
+    cprintf('Text', '======================================================================= \n');
     
 end
 
