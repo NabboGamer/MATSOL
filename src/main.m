@@ -152,6 +152,8 @@ cprintf('Text', '===============================================================
 if elementsOrder == 2
     geometryTagList = string(model.geom.tags());
     geometryTagPos = find(strcmp(geometryTagList, selectedComponentGeometryTag));
+else
+    geometryTagPos = -1;
 end
 
 %% Selezione del tipo di dato da estrarre/generare
