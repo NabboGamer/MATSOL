@@ -247,6 +247,7 @@ if choice == 1
     else
         [~,meshdata] = mphmeshstats(model, selectedMeshTag);
         meshdataTypeList = string(meshdata.types);
+        meshdataTypeList = meshdataTypeList';
         assignin('base', 'meshdataTypeList', meshdataTypeList);
     end
     
@@ -349,6 +350,7 @@ elseif choice == 2
     else
         [~,meshdata] = mphmeshstats(model, selectedMeshTag);
         meshdataTypeList = string(meshdata.types);
+        meshdataTypeList = meshdataTypeList';
         assignin('base', 'meshdataTypeList', meshdataTypeList);
     end
 
@@ -458,6 +460,7 @@ elseif choice == 3
     else
         [~,meshdata] = mphmeshstats(model, selectedMeshTag);
         meshdataTypeList = string(meshdata.types);
+        meshdataTypeList = meshdataTypeList';
         assignin('base', 'meshdataTypeList', meshdataTypeList);
     end
 
@@ -571,6 +574,7 @@ elseif choice == 4
     else
         [~,meshdata] = mphmeshstats(model, selectedMeshTag);
         meshdataTypeList = string(meshdata.types);
+        meshdataTypeList = meshdataTypeList';
         assignin('base', 'meshdataTypeList', meshdataTypeList);
     end
 
