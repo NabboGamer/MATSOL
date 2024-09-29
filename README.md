@@ -15,6 +15,12 @@ Repository of the Numerical Models for Fields and Circuits project, 2023-2024 ed
 
 MATSOL is a CLI that allows you to extract data of interest from a COMSOL model and then load it into MATLAB for subsequent processing.
 
+![CLI Splash Screen](https://github.com/NabboGamer/MATSOL/blob/develop/MATSOL_splash_screen.png?raw=true)
+
+![CLI Splash Screen](https://github.com/NabboGamer/MATSOL/blob/develop/MATSOL_splash_screen.png)
+
+![CLI Splash Screen](./src/resources/MATSOL_splash_screen.png)
+
 ## Licenza
 
 [MIT](https://choosealicense.com/licenses/mit/)
